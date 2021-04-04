@@ -1,5 +1,5 @@
 <script>
-	import '../app.css';
+	import i18n from '../i18n';
 </script>
 
 <slot />
