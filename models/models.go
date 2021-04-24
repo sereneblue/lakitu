@@ -21,8 +21,7 @@ func InitDB() error {
 	}
 
 	engine, err = xorm.NewEngine("sqlite3", userDir+"/lakitu/lakitu.db")
-	defer engine.Close()
-
+	
 	if err != nil {
 		return err
 	}
@@ -33,4 +32,8 @@ func InitDB() error {
 	}
 
 	return nil
+}
+
+func CloseDB() {
+	engine.Close()
 }

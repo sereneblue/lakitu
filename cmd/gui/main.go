@@ -15,6 +15,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	defer models.CloseDB()
+
 	e := echo.New()
 	e.HideBanner = true
 
