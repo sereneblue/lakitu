@@ -1,24 +1,25 @@
 package main
 
 import (
-    "log"
+	"log"
 
 	"github.com/labstack/echo/v4"
 
-    "github.com/sereneblue/lakitu/models"
-    "github.com/sereneblue/lakitu/internal/routes"
+	"github.com/sereneblue/lakitu/internal/routes"
+	"github.com/sereneblue/lakitu/models"
 )
 
 func main() {
-    err := models.InitDB()
-    if err != nil {
-        log.Fatal(err)
-    }
+	err := models.InitDB()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    e := echo.New()
-    e.HideBanner = true
+	e := echo.New()
+	e.HideBanner = true
 
-    e.GET("/firstrun", routes.FirstRunCheck)
+	e.GET("/firstrun", routes.FirstRunCheck)
+	e.POST("/verify-creds", routes.VerifiyCredentials)
 
-    e.Logger.Fatal(e.Start("127.0.0.1:8080"))
+	e.Logger.Fatal(e.Start("127.0.0.1:8080"))
 }

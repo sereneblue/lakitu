@@ -1,7 +1,7 @@
 package models
 
 type Settings struct {
-	Key	string `xorm:"not null unique index"`
+	Key   string `xorm:"not null unique index"`
 	Value string
 }
 
