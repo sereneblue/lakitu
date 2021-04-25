@@ -22,6 +22,7 @@ func main() {
 
 	e.GET("/firstrun", routes.FirstRunCheck)
 	e.POST("/verify-creds", routes.VerifiyCredentials)
+	e.POST("/complete-setup", routes.CompleteSetup)
 
 	e.Logger.Fatal(e.Start("127.0.0.1:8080"))
 }
