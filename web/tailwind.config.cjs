@@ -14,7 +14,27 @@ module.exports = {
 	mode: 'jit',
 	darkMode: 'class',
 	theme: {
-		extend: {}
+		extend: {
+			colors: {
+				nord0: '#2e3440',
+				nord1: '#3b4252',
+				nord2: '#434c5e',
+				nord3: '#4c566a',
+				nord4: '#d8dee9',
+				nord5: '#e5e9f0',
+				nord6: '#eceff4',
+				accent: {
+					100: '#8fbcbb',
+					200: '#729696',
+					300: '#567170'
+				},
+				danger: {
+					100: '#bf616a',
+					200: '#994e55',
+					300: '#733a40'
+				}
+			}
+		}
 	},
 	variants: {
 		extend: {}
