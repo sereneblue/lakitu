@@ -24,9 +24,9 @@ module.exports = {
 				nord5: '#e5e9f0',
 				nord6: '#eceff4',
 				accent: {
-					100: '#8fbcbb',
+					100: '#81a9a8',
 					200: '#729696',
-					300: '#567170'
+					300: '#648483'
 				},
 				danger: {
 					100: '#bf616a',
