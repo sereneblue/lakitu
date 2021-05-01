@@ -2,7 +2,7 @@
 	import Icon from './Icon.svelte';
 
 	type ButtonSize = 'xs' | 'sm' | 'md' | 'lg';
-	type ButtonType = 'default' | 'danger';
+	type ButtonType = 'default' | 'danger' | 'primary';
 
 	export let text: string = '';
 	export let icon: string = '';
@@ -26,7 +26,6 @@
 	class="
 		text-center text-white font-bold 
 		py-1 px-2
-		border border-transparent
 		relative
 		rounded shadow
 		focus:outline-none focus-visible:ring-2
@@ -40,6 +39,7 @@
 	class:w-full={full}
 	class:default={type === 'default'}
 	class:danger={type === 'danger'}
+	class:primary={type === 'primary'}
 	on:click={btnClick}
 	{disabled}
 >
@@ -97,19 +97,36 @@
 	}
 
 	.default { 
+		@apply
+			bg-nord3 hover:bg-nord2 dark:bg-nord1 dark:hover:bg-nord2
+			ring-accent-100 dark:ring-accent-200 ring-opacity-50; 
+	}
+	.default.disabled { 
+		@apply hover:bg-nord3 dark:hover:bg-nord1; 
+	}
+	.default.outline {
+		@apply
+			bg-transparent hover:bg-nord3 dark:hover:bg-nord1
+			text-nord3 dark:text-nord1 hover:text-white
+			border border-nord3 dark:border-nord1;
+	}
+	.default.outline.disabled {
+		@apply hover:bg-transparent hover:text-nord3 dark:hover:text-nord1;
+	}
+	.primary { 
 		@apply bg-accent-100 hover:bg-accent-200 dark:bg-accent-200 dark:hover:bg-accent-300
 			   ring-accent-100 dark:ring-accent-200 ring-opacity-50; 
 	}
-	.default.disabled { 
+	.primary.disabled { 
 		@apply hover:bg-accent-100 dark:hover:bg-accent-200; 
 	}
-	.default.outline {
+	.primary.outline {
 		@apply
 			bg-transparent hover:bg-accent-100 dark:hover:bg-accent-200 
 			text-accent-100 dark:text-accent-200 hover:text-white
 			border border-accent-100 dark:border-accent-200;
 	}
-	.default.outline.disabled {
+	.primary.outline.disabled {
 		@apply hover:bg-transparent hover:text-accent-100 dark:hover:text-accent-200;
 	}
 	
