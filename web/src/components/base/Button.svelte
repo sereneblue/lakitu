@@ -19,7 +19,7 @@
 		if (!loading) {
 			onClick();
 		}
-	} 
+	};
 </script>
 
 <button
@@ -34,8 +34,8 @@
 	class:sm={size === 'sm'}
 	class:md={size === 'md'}
 	class:lg={size === 'lg'}
-	class:disabled={disabled}
-	class:outline={outline}
+	class:disabled
+	class:outline
 	class:w-full={full}
 	class:default={type === 'default'}
 	class:danger={type === 'danger'}
@@ -85,61 +85,65 @@
 <style type="postcss">
 	/* size */
 
-	.xs { @apply text-xs; }
-	.sm { @apply text-sm; }
-	.md { @apply text-base; }
-	.lg { @apply text-lg px-4; }
+	.xs {
+		@apply text-xs;
+	}
+	.sm {
+		@apply text-sm;
+	}
+	.md {
+		@apply text-base;
+	}
+	.lg {
+		@apply text-lg px-4;
+	}
 
 	/* color */
 
-	.disabled { 
+	.disabled {
 		@apply opacity-50 cursor-not-allowed;
 	}
 
-	.default { 
-		@apply
-			bg-nord3 hover:bg-nord2 dark:bg-nord1 dark:hover:bg-nord2
-			ring-accent-100 dark:ring-accent-200 ring-opacity-50; 
+	.default {
+		@apply bg-nord3 hover:bg-nord2 dark:bg-nord1 dark:hover:bg-nord2
+			ring-accent-100 dark:ring-accent-200 ring-opacity-50;
 	}
-	.default.disabled { 
-		@apply hover:bg-nord3 dark:hover:bg-nord1; 
+	.default.disabled {
+		@apply hover:bg-nord3 dark:hover:bg-nord1;
 	}
 	.default.outline {
-		@apply
-			bg-transparent hover:bg-nord3 dark:hover:bg-nord1
+		@apply bg-transparent hover:bg-nord3 dark:hover:bg-nord1
 			text-nord3 dark:text-nord1 hover:text-white
 			border border-nord3 dark:border-nord1;
 	}
 	.default.outline.disabled {
 		@apply hover:bg-transparent hover:text-nord3 dark:hover:text-nord1;
 	}
-	.primary { 
+	.primary {
 		@apply bg-accent-100 hover:bg-accent-200 dark:bg-accent-200 dark:hover:bg-accent-300
-			   ring-accent-100 dark:ring-accent-200 ring-opacity-50; 
+			   ring-accent-100 dark:ring-accent-200 ring-opacity-50;
 	}
-	.primary.disabled { 
-		@apply hover:bg-accent-100 dark:hover:bg-accent-200; 
+	.primary.disabled {
+		@apply hover:bg-accent-100 dark:hover:bg-accent-200;
 	}
 	.primary.outline {
-		@apply
-			bg-transparent hover:bg-accent-100 dark:hover:bg-accent-200 
+		@apply bg-transparent hover:bg-accent-100 dark:hover:bg-accent-200 
 			text-accent-100 dark:text-accent-200 hover:text-white
 			border border-accent-100 dark:border-accent-200;
 	}
 	.primary.outline.disabled {
 		@apply hover:bg-transparent hover:text-accent-100 dark:hover:text-accent-200;
 	}
-	
+
 	.danger {
 		@apply bg-danger-100 hover:bg-danger-200 dark:bg-danger-200 dark:hover:bg-danger-300
 			   ring-danger-100 dark:ring-danger-200 ring-opacity-50;
 	}
 	.danger.disabled {
-		@apply hover:bg-danger-100 dark:hover:bg-danger-200; 
+		@apply hover:bg-danger-100 dark:hover:bg-danger-200;
 	}
 	.danger.outline {
-		@apply
-			bg-transparent hover:bg-danger-100 dark:hover:bg-danger-200
+		@apply bg-transparent hover:bg-danger-100 dark:hover:bg-danger-200
 			text-danger-100 dark:text-danger-200 hover:text-white
 			border border-danger-100 dark:border-danger-200;
 	}
@@ -148,7 +152,7 @@
 	}
 
 	/* icon */
-	
+
 	span.icon {
 		@apply w-4 h-4;
 	}
