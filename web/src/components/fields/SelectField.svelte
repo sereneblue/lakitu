@@ -33,7 +33,7 @@
 			bg-nord0 bg-opacity-5 dark:bg-nord6 dark:bg-opacity-10 
 			border-2 border-transparent
 			rounded w-full
-			py-1 px-2
+			p-2
 			leading-tight
 			focus-visible:bg-white
 			focus:outline-none focus:border-accent-200"
