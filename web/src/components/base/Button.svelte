@@ -12,6 +12,7 @@
 	export let loading: boolean = false;
 	export let outline: boolean = false;
 	export let full: boolean = false;
+	export let flat: boolean = false;
 
 	export let onClick: Function = () => {};
 
@@ -36,6 +37,7 @@
 	class:lg={size === 'lg'}
 	class:disabled
 	class:outline
+	class:flat
 	class:w-full={full}
 	class:default={type === 'default'}
 	class:danger={type === 'danger'}
@@ -98,6 +100,11 @@
 		@apply text-lg px-4;
 	}
 
+	/* text */
+	.flat {
+		@apply border-none hover:underline shadow-none;
+	}
+
 	/* color */
 
 	.disabled {
@@ -119,6 +126,9 @@
 	.default.outline.disabled {
 		@apply hover:bg-transparent hover:text-nord3 dark:hover:text-nord1;
 	}
+	.default.outline.flat {
+		@apply hover:bg-transparent hover:text-nord3 dark:hover:text-nord1;
+	}
 	.primary {
 		@apply bg-accent-100 hover:bg-accent-200 dark:bg-accent-200 dark:hover:bg-accent-300
 			   ring-accent-100 dark:ring-accent-200 ring-opacity-50;
@@ -130,6 +140,9 @@
 		@apply bg-transparent hover:bg-accent-100 dark:hover:bg-accent-200 
 			text-accent-100 dark:text-accent-200 hover:text-white
 			border border-accent-100 dark:border-accent-200;
+	}
+	.primary.outline.flat {
+		@apply hover:bg-transparent hover:text-accent-100 dark:hover:text-accent-200;
 	}
 	.primary.outline.disabled {
 		@apply hover:bg-transparent hover:text-accent-100 dark:hover:text-accent-200;
@@ -146,6 +159,9 @@
 		@apply bg-transparent hover:bg-danger-100 dark:hover:bg-danger-200
 			text-danger-100 dark:text-danger-200 hover:text-white
 			border border-danger-100 dark:border-danger-200;
+	}
+	.primary.outline.flat {
+		@apply hover:bg-transparent hover:text-danger-100 dark:hover:text-danger-200;
 	}
 	.danger.outline.disabled {
 		@apply hover:bg-transparent hover:text-danger-100 dark:hover:text-danger-200;
