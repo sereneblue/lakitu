@@ -113,7 +113,8 @@
 
 	.default {
 		@apply bg-nord3 hover:bg-nord2 dark:bg-nord1 dark:hover:bg-nord2
-			ring-accent-100 dark:ring-accent-200 ring-opacity-50;
+			ring-accent-100 dark:ring-accent-200 ring-opacity-50
+			border border-transparent;
 	}
 	.default.disabled {
 		@apply hover:bg-nord3 dark:hover:bg-nord1;
@@ -131,7 +132,8 @@
 	}
 	.primary {
 		@apply bg-accent-100 hover:bg-accent-200 dark:bg-accent-200 dark:hover:bg-accent-300
-			   ring-accent-100 dark:ring-accent-200 ring-opacity-50;
+			   ring-accent-100 dark:ring-accent-200 ring-opacity-50
+			   border border-transparent;
 	}
 	.primary.disabled {
 		@apply hover:bg-accent-100 dark:hover:bg-accent-200;
@@ -150,7 +152,7 @@
 
 	.danger {
 		@apply bg-danger-100 hover:bg-danger-200 dark:bg-danger-200 dark:hover:bg-danger-300
-			   ring-danger-100 dark:ring-danger-200 ring-opacity-50;
+			   ring-danger-100 dark:ring-danger-200 ring-opacity-50 border border-transparent;
 	}
 	.danger.disabled {
 		@apply hover:bg-danger-100 dark:hover:bg-danger-200;
