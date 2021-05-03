@@ -32,7 +32,10 @@ module.exports = {
 					100: '#bf616a',
 					200: '#994e55',
 					300: '#733a40'
-				}
+				},
+				info: '#5e81ac',
+				success: '#a3be8c',
+				warning: '#ebcb8b'
 			}
 		}
 	},
