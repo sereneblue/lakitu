@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
+	"github.com/gorilla/sessions"
+	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
-  	"github.com/gorilla/sessions"
-  	"github.com/labstack/echo-contrib/session"
 
 	"github.com/sereneblue/lakitu/internal/routes"
 	"github.com/sereneblue/lakitu/models"
@@ -28,6 +28,7 @@ func main() {
 	e.GET("/firstrun", routes.FirstRunCheck)
 	e.POST("/verify-creds", routes.VerifiyCredentials)
 	e.POST("/complete-setup", routes.CompleteSetup)
+	e.POST("/ping-aws", routes.PingAWS)
 	e.POST("/login", routes.Login)
 	e.GET("/logout", routes.Logout)
 

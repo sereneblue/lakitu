@@ -21,7 +21,7 @@ func InitDB() error {
 	}
 
 	engine, err = xorm.NewEngine("sqlite3", userDir+"/lakitu/lakitu.db")
-	
+
 	if err != nil {
 		return err
 	}

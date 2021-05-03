@@ -3,9 +3,9 @@ package routes
 import (
 	"net/http"
 
-	"github.com/labstack/echo/v4"
-  	"github.com/labstack/echo-contrib/session"
 	"github.com/alexedwards/argon2id"
+	"github.com/labstack/echo-contrib/session"
+	"github.com/labstack/echo/v4"
 
 	"github.com/sereneblue/lakitu/internal/util"
 	"github.com/sereneblue/lakitu/models"

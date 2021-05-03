@@ -10,9 +10,9 @@ import (
 	"fmt"
 	"io"
 
-	"golang.org/x/crypto/argon2"
 	"github.com/alexedwards/argon2id"
 	"github.com/shengdoushi/base58"
+	"golang.org/x/crypto/argon2"
 )
 
 func decrypt(enc, key []byte) ([]byte, error) {

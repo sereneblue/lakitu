@@ -1,7 +1,11 @@
 package routes
 
 import (
+	"fmt"
+	"net"
 	"net/http"
+	"sync"
+	"time"
 
 	"github.com/alexedwards/argon2id"
 
@@ -22,6 +26,10 @@ type SetupForm struct {
 	SecretKey     string `form:"secretKey"`
 }
 
+type LatencyForm struct {
+	Regions []string `form:"regions"`
+}
+
 func CompleteSetup(c echo.Context) error {
 	form := new(SetupForm)
 
@@ -38,7 +46,7 @@ func CompleteSetup(c echo.Context) error {
 	s.Value = form.DefaultRegion
 	s.Insert()
 
-	// save password hash 
+	// save password hash
 	pwdHash, err := argon2id.CreateHash(form.Password, argon2id.DefaultParams)
 	if err != nil {
 		return c.JSON(http.StatusOK, map[string]interface{}{
@@ -147,6 +155,53 @@ func VerifiyCredentials(c echo.Context) error {
 		"success": success,
 		"data": map[string]interface{}{
 			"regions": regions,
+		},
+	})
+}
+
+func ping(region string, latency map[string]int, wg *sync.WaitGroup, m *sync.Mutex) {
+	defer wg.Done()
+
+	addr, _ := net.ResolveTCPAddr("tcp4", fmt.Sprintf("ec2.%s.amazonaws.com:80", region))
+
+	start := time.Now()
+	conn, err := net.DialTCP("tcp", nil, addr)
+	if err != nil {
+		latency[region] = 0
+	}
+	defer conn.Close()
+
+	m.Lock()
+	latency[region] = int(time.Since(start) / time.Millisecond)
+	m.Unlock()
+}
+
+func PingAWS(c echo.Context) error {
+	form := new(LatencyForm)
+
+	if err := c.Bind(form); err != nil {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"success": false,
+			"message": "Invalid input",
+		})
+	}
+
+	var latency = make(map[string]int)
+	var wg sync.WaitGroup
+	var mutex = &sync.Mutex{}
+
+	wg.Add(len(form.Regions))
+
+	for _, region := range form.Regions {
+		go ping(region, latency, &wg, mutex)
+	}
+
+	wg.Wait()
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"success": true,
+		"data": map[string]interface{}{
+			"latency": latency,
 		},
 	})
 }
