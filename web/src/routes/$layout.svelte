@@ -18,8 +18,14 @@
 	</div>
 </div>
 
-<style global>
+<style lang="postcss" global>
 	@tailwind base;
 	@tailwind components;
 	@tailwind utilities;
+
+	a {
+		@apply cursor-pointer
+			   underline
+			   text-accent-100 hover:text-accent-200 dark:text-accent-200 dark:hover:text-accent-300 font-semibold;
+	}
 </style>
