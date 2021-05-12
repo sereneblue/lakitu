@@ -29,8 +29,10 @@ func main() {
 	e.POST("/verify-creds", routes.VerifiyCredentials)
 	e.POST("/complete-setup", routes.CompleteSetup)
 	e.POST("/ping-aws", routes.PingAWS)
-	e.POST("/login", routes.Login)
-	e.GET("/logout", routes.Logout)
+
+	sess := e.Group("/session")
+	sess.POST("/login", routes.Login)
+	sess.GET("/logout", routes.Logout)
 
 	e.Logger.Fatal(e.Start("127.0.0.1:8080"))
 }
