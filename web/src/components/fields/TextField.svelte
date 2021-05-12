@@ -2,9 +2,12 @@
 	import feather from 'feather-icons';
 	import { createEventDispatcher } from 'svelte';
 
+	import { Icon } from '../base';
+
 	type Align = 'left' | 'center';
 	type InputType = 'text' | 'password';
 
+	export let icon: string = '';
 	export let type: InputType = 'text';
 	export let label: string = '';
 	export let value: string = '';
@@ -36,6 +39,11 @@
 			{label}
 		</div>
 	{/if}
+	{#if icon}
+		<div class="absolute ml-2 mt-2 w-6 h-6 opacity-50">
+			<Icon {icon} />
+		</div>
+	{/if}
 	<input
 		class="
 			appearance-none
@@ -47,6 +55,7 @@
 			focus-visible:bg-white
 			focus:outline-none focus:border-accent-200"
 		class:w-full={full}
+		class:pl-9={icon}
 		class:text-left={align === 'left'}
 		class:text-center={align === 'center'}
 		class:error={hasError}
