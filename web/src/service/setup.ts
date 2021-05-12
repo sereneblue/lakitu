@@ -21,7 +21,7 @@ const login = async (password: string): Promise<Response> => {
 };
 
 const pingAWS = async (regions: string[]): Promise<Response> => {
-	let res = await fetch(window.location.origin + '/ping-aws', {
+	let res = await fetch(window.location.origin + '/aws/ping-test', {
 		method: 'POST',
 		credentials: 'include',
 		headers: {
@@ -48,7 +48,7 @@ const verifyCredentials = async (accessKey: string, secretKey: string): Promise<
 	formData.append('accessKey', accessKey);
 	formData.append('secretKey', secretKey);
 
-	let res = await fetch(window.location.origin + '/verify-creds', {
+	let res = await fetch(window.location.origin + '/aws/verify-creds', {
 		method: 'POST',
 		credentials: 'include',
 		body: formData

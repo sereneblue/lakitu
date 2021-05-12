@@ -25,14 +25,17 @@ func main() {
 	e.HideBanner = true
 	e.Use(session.Middleware(sessions.NewCookieStore([]byte(CookieStoreSecret))))
 
-	e.GET("/firstrun", routes.FirstRunCheck)
-	e.POST("/verify-creds", routes.VerifiyCredentials)
-	e.POST("/complete-setup", routes.CompleteSetup)
-	e.POST("/ping-aws", routes.PingAWS)
+	setup := e.Group("/setup")
+	setup.GET("/first-run", routes.FirstRunCheck)
+	setup.POST("/complete", routes.CompleteSetup)
 
 	sess := e.Group("/session")
 	sess.POST("/login", routes.Login)
 	sess.GET("/logout", routes.Logout)
+
+	aws := e.Group("/aws")
+	aws.POST("/verify-creds", routes.VerifiyCredentials)
+	aws.POST("/ping-test", routes.PingAWS)
 
 	e.Logger.Fatal(e.Start("127.0.0.1:8080"))
 }
