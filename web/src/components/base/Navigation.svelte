@@ -33,6 +33,7 @@
 					class:hidden={path === '/library'}
 					role="menuitem"
 					tabindex="-1"
+					rel="external"
 				>
 					<span class="w-4 h-4">
 						<Icon icon="grid" />
@@ -45,6 +46,7 @@
 					class:hidden={path === '/machines'}
 					role="menuitem"
 					tabindex="-1"
+					rel="external"
 				>
 					<span class="w-4 h-4">
 						<Icon icon="monitor" />
@@ -57,6 +59,7 @@
 					class:hidden={path === '/settings'}
 					role="menuitem"
 					tabindex="-1"
+					rel="external"
 				>
 					<span class="w-4 h-4">
 						<Icon icon="settings" />
@@ -68,6 +71,7 @@
 					class="text-gray-700 px-4 py-2 hover:bg-nord6 block py-1 text-sm no-underline flex items-center space-x-2"
 					role="menuitem"
 					tabindex="-1"
+					rel="external"
 				>
 					<span class="w-4 h-4">
 						<Icon icon="log-out" />
