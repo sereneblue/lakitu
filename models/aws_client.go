@@ -2,16 +2,24 @@ package models
 
 import (
 	"context"
+	"strconv"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
+	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 )
 
 type AWSClient struct {
 	Config aws.Config
+}
+
+type AWSGPUInstance struct {
+	InstanceType string  `json:"instance"`
+	Price        float64 `json:"price"`
 }
 
 type AWSRegion struct {
@@ -68,6 +76,51 @@ func (c *AWSClient) IsValidAWSCredentials() (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (c *AWSClient) GetGPUInstances(region string) []AWSGPUInstance {
+	var instances []AWSGPUInstance
+
+	c.Config.Region = region
+
+	instancePriceMap := map[string]float64{}
+
+	client := ec2.NewFromConfig(c.Config)
+	timestamp := time.Now()
+	output, err := client.DescribeSpotPriceHistory(context.TODO(), &ec2.DescribeSpotPriceHistoryInput{
+		InstanceTypes: []types.InstanceType{
+			types.InstanceTypeG22xlarge,
+			types.InstanceTypeG3sXlarge,
+			types.InstanceTypeG4dnXlarge,
+		},
+		ProductDescriptions: []string{"Windows"},
+		StartTime:           &timestamp,
+	})
+
+	if err != nil {
+		return instances
+	}
+
+	for _, sp := range output.SpotPriceHistory {
+		instanceType := string(sp.InstanceType)
+		instancePrice, _ := strconv.ParseFloat(*sp.SpotPrice, 64)
+
+		if price, ok := instancePriceMap[instanceType]; ok {
+			avgPrice := (price + instancePrice) / 2
+			instancePriceMap[instanceType] = avgPrice
+		} else {
+			instancePriceMap[instanceType] = instancePrice
+		}
+	}
+
+	for k, v := range instancePriceMap {
+		instances = append(instances, AWSGPUInstance{
+			InstanceType: k,
+			Price:        v,
+		})
+	}
+
+	return instances
 }
 
 func (c *AWSClient) GetRegions() []AWSRegion {

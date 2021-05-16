@@ -10,7 +10,6 @@ import (
 	"github.com/sereneblue/lakitu/models"
 )
 
-
 type SetupForm struct {
 	DefaultRegion string `form:"region"`
 	Password      string `form:"password"`

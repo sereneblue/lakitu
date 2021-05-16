@@ -34,8 +34,10 @@ func main() {
 	sess.GET("/logout", routes.Logout)
 
 	aws := e.Group("/aws")
+	aws.GET("/regions", routes.GetAWSRegions)
 	aws.POST("/verify", routes.VerifiyAWSCredentials)
 	aws.POST("/ping", routes.PingAWS)
+	aws.POST("/gpu-instances", routes.GetAWSGPUInstances)
 
 	e.Logger.Fatal(e.Start("127.0.0.1:8080"))
 }
