@@ -64,4 +64,8 @@
 	.default {
 		@apply text-gray-400 dark:text-gray-500;
 	}
+
+	.modal-content label select {
+		@apply bg-nord0 bg-opacity-5;
+	}
 </style>

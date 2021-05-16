@@ -75,8 +75,12 @@
 	</div>
 </label>
 
-<style type="postcss" global>
+<style type="postcss">
 	.error {
 		@apply border-danger-100 dark:border-danger-200;
+	}
+
+	.modal-content label input {
+		@apply bg-nord0 bg-opacity-5;
 	}
 </style>
