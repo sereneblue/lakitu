@@ -34,8 +34,8 @@ func main() {
 	sess.GET("/logout", routes.Logout)
 
 	aws := e.Group("/aws")
-	aws.POST("/verify-creds", routes.VerifiyCredentials)
-	aws.POST("/ping-test", routes.PingAWS)
+	aws.POST("/verify", routes.VerifiyAWSCredentials)
+	aws.POST("/ping", routes.PingAWS)
 
 	e.Logger.Fatal(e.Start("127.0.0.1:8080"))
 }
