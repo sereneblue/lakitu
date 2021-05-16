@@ -88,7 +88,7 @@
 					use:handleClickOutside
 					in:fly={{ y: 100, duration: 250 }}
 					out:fly={{ y: 100, duration: 250 }}
-					class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+					class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform sm:my-8 sm:align-middle sm:max-w-lg w-full"
 				>
 					<div class="relative bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
 						<div
