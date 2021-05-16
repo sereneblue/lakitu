@@ -23,8 +23,8 @@ const config = {
 			server: {
 				proxy: {
 					'^/(aws)|(session)|(setup)/.*': {
-				        target: 'http://localhost:8080/',
-				        changeOrigin: true
+						target: 'http://localhost:8080/',
+						changeOrigin: true
 					}
 				}
 			}

@@ -1,6 +1,6 @@
 import type { AWSRegion, Response } from './types';
 
-const completeSetup = async (accessKey, secretKey, region, password ): Promise<Response> => {
+const completeSetup = async (accessKey, secretKey, region, password): Promise<Response> => {
 	const formData = new URLSearchParams();
 	formData.append('accessKey', accessKey);
 	formData.append('secretKey', secretKey);
@@ -11,7 +11,7 @@ const completeSetup = async (accessKey, secretKey, region, password ): Promise<R
 		method: 'POST',
 		credentials: 'include',
 		headers: {
-			Accept: 'application/json',
+			Accept: 'application/json'
 		},
 		body: formData
 	});
