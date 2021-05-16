@@ -1,12 +1,18 @@
 import type { AWSRegion, Response } from './types';
 
-const login = async (password: string): Promise<Response> => {
+const completeSetup = async (accessKey, secretKey, region, password ): Promise<Response> => {
 	const formData = new URLSearchParams();
+	formData.append('accessKey', accessKey);
+	formData.append('secretKey', secretKey);
 	formData.append('password', password);
+	formData.append('region', region);
 
-	let res = await fetch(window.location.origin + '/session/login', {
+	let res = await fetch(window.location.origin + '/setup/complete', {
 		method: 'POST',
 		credentials: 'include',
+		headers: {
+			Accept: 'application/json',
+		},
 		body: formData
 	});
 
@@ -16,7 +22,7 @@ const login = async (password: string): Promise<Response> => {
 
 	return {
 		success: false,
-		message: 'Password is incorrect'
+		message: 'Unable to complete setup'
 	};
 };
 
@@ -64,4 +70,4 @@ const verifyCredentials = async (accessKey: string, secretKey: string): Promise<
 	};
 };
 
-export { login, pingAWS, verifyCredentials };
+export { completeSetup, pingAWS, verifyCredentials };
