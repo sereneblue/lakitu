@@ -1,4 +1,6 @@
 <script lang="typescript">
+	import { createEventDispatcher } from 'svelte';
+
 	import { Button, Modal } from '../base';
 	import { pingAWS } from '../../service/setup';
 
@@ -9,6 +11,8 @@
 		region: string;
 		latency: number;
 	};
+
+	const dispatch = createEventDispatcher();
 
 	const testLatency = async (): Promise<void> => {
 		loading = true;
@@ -32,6 +36,8 @@
 
 	let pingResults: PingResult[] = [];
 	let loading: boolean = false;
+
+	$: if (!show) dispatch('close');
 </script>
 
 <Modal title="AWS Latency Test" type="info" {show} on:close={() => (show = false)}>

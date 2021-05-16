@@ -5,14 +5,14 @@
 	import Icon from './Icon.svelte';
 	import Button from './Button.svelte';
 
-	type ModalType = 'warning' | 'info' | 'danger' | 'success';
+	type ModalType = 'warning' | 'info' | 'danger' | 'success' | 'default';
 	type ModalAction = {
 		text: string;
 		hideCancel: boolean;
 		func: Function;
 	};
 
-	export let type: ModalType = 'info';
+	export let type: ModalType = 'default';
 	export let action: ModalAction;
 	export let title: string = '';
 	export let text: string = '';
@@ -97,31 +97,33 @@
 						>
 							<Icon icon="x" />
 						</div>
-						<div class="sm:flex sm:items-start">
-							<div
-								class="h-12 w-12 mx-auto flex-shrink-0 sm:mx-0 sm:h-10 sm:w-10"
-								class:text-danger-200={type === 'danger'}
-								class:text-info={type === 'info'}
-								class:text-warning={type === 'warning'}
-								class:text-success={type === 'success'}
-							>
-								{#if type === 'danger'}
-									<Icon icon="alert-octagon" />
-								{:else if type === 'info'}
-									<Icon icon="info" />
-								{:else if type === 'warning'}
-									<Icon icon="alert-triangle" />
-								{:else if type === 'success'}
-									<Icon icon="check-circle" />
-								{/if}
-							</div>
-							<div class="mt-3 w-full text-center sm:mt-0 sm:ml-4 sm:text-left">
-								<h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+						<div class="sm:flex sm:items-start" class:space-x-2={type != 'default'}>
+							{#if type != 'default'}
+								<div
+									class="h-12 w-12 mr-4 mx-auto flex-shrink-0 sm:mx-0 sm:h-10 sm:w-10"
+									class:text-danger-200={type === 'danger'}
+									class:text-info={type === 'info'}
+									class:text-warning={type === 'warning'}
+									class:text-success={type === 'success'}
+								>
+									{#if type === 'danger'}
+										<Icon icon="alert-octagon" />
+									{:else if type === 'info'}
+										<Icon icon="info" />
+									{:else if type === 'warning'}
+										<Icon icon="alert-triangle" />
+									{:else if type === 'success'}
+										<Icon icon="check-circle" />
+									{/if}
+								</div>
+							{/if}
+							<div class="mt-3 w-full sm:mt-0 text-left text-nord2">
+								<h3 class="text-lg leading-6 font-medium" id="modal-title">
 									{title}
 								</h3>
-								<div class="mt-2 max-h-84">
+								<div class="mt-2 max-h-84 modal-content">
 									{#if text}
-										<p class="text-sm text-gray-500">
+										<p class="text-sm">
 											{text}
 										</p>
 									{:else}
