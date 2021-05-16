@@ -20,7 +20,14 @@ const config = {
 		target: '#svelte',
 
 		vite: {
-			ssr: {}
+			server: {
+				proxy: {
+					'^/(aws)|(session)|(setup)/.*': {
+				        target: 'http://localhost:8080/',
+				        changeOrigin: true
+					}
+				}
+			}
 		}
 	}
 };
