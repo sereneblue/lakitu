@@ -41,6 +41,17 @@ func GetAWSSettings() (string, string) {
 	return accessKey.Value, secretKey.Value
 }
 
+func GetDefaultRegion() string {
+	var s Settings
+
+	has, err := engine.Where("key = 'defaultRegion'").Get(&s)
+	if err != nil || !has {
+		return ""
+	}
+
+	return s.Value
+}
+
 func GetEncryptedData() (string, string) {
 	var key, salt Settings
 

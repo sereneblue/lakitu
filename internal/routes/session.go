@@ -63,6 +63,7 @@ func Login(c echo.Context) error {
 	sess.Values["authenticated"] = true
 	sess.Values["accessKey"] = awsAccessKey
 	sess.Values["secretKey"] = awsSecretKey
+	sess.Values["defaultRegion"] = models.GetDefaultRegion()
 
 	sess.Save(c.Request(), c.Response())
 
