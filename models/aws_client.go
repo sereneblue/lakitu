@@ -2,6 +2,7 @@ package models
 
 import (
 	"context"
+	"regexp"
 	"strconv"
 	"time"
 
@@ -10,6 +11,8 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/ec2"
 	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
+	"github.com/aws/aws-sdk-go-v2/service/pricing"
+	pricingTypes "github.com/aws/aws-sdk-go-v2/service/pricing/types"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 )
 
@@ -20,6 +23,12 @@ type AWSClient struct {
 type AWSGPUInstance struct {
 	InstanceType string  `json:"instance"`
 	Price        float64 `json:"price"`
+}
+
+type AWSPrices struct {
+	Bandwidth float64 `json:"bandwidth"`
+	Volume    float64 `json:"volume"`
+	Snapshots float64 `json:"snapshots"`
 }
 
 type AWSRegion struct {
@@ -41,14 +50,14 @@ var AWS_REGIONS = map[string]string{
 	"ap-southeast-2": "Asia Pacific (Sydney)",
 	"ap-northeast-1": "Asia Pacific (Tokyo)",
 	"ca-central-1":   "Canada (Central)",
-	"eu-central-1":   "Europe (Frankfurt)",
-	"eu-west-1":      "Europe (Ireland)",
-	"eu-west-2":      "Europe (London)",
-	"eu-south-1":     "Europe (Milan)",
-	"eu-west-3":      "Europe (Paris)",
-	"eu-north-1":     "Europe (Stockholm)",
+	"eu-central-1":   "EU (Frankfurt)",
+	"eu-west-1":      "EU (Ireland)",
+	"eu-west-2":      "EU (London)",
+	"eu-south-1":     "EU (Milan)",
+	"eu-west-3":      "EU (Paris)",
+	"eu-north-1":     "EU (Stockholm)",
 	"me-south-1":     "Middle East (Bahrain)",
-	"sa-east-1":      "South America (São Paulo)",
+	"sa-east-1":      "South America (Sao Paulo)",
 }
 
 func NewAWSClient(key, secret, region string) AWSClient {
@@ -121,6 +130,130 @@ func (c *AWSClient) GetGPUInstances(region string) []AWSGPUInstance {
 	}
 
 	return instances
+}
+
+func (c *AWSClient) GetPrices(region string) AWSPrices {
+	prices := AWSPrices{}
+	re := regexp.MustCompile(`"pricePerUnit":{"USD":"(.*?)"}`)
+
+	client := pricing.NewFromConfig(c.Config)
+	resGP3, err := client.GetProducts(context.TODO(), &pricing.GetProductsInput{
+		ServiceCode: aws.String("AmazonEC2"),
+		Filters: []pricingTypes.Filter{
+			pricingTypes.Filter{
+				Type:  pricingTypes.FilterTypeTermMatch,
+				Field: aws.String("productFamily"),
+				Value: aws.String("Storage"),
+			},
+			pricingTypes.Filter{
+				Type:  pricingTypes.FilterTypeTermMatch,
+				Field: aws.String("volumeApiName"),
+				Value: aws.String("gp3"),
+			},
+			pricingTypes.Filter{
+				Type:  pricingTypes.FilterTypeTermMatch,
+				Field: aws.String("location"),
+				Value: aws.String(AWS_REGIONS[region]),
+			},
+		},
+	})
+
+	if err == nil {
+		if len(resGP3.PriceList) > 0 {
+			storagePrice := re.FindStringSubmatch(resGP3.PriceList[0])
+			prices.Volume, _ = strconv.ParseFloat(storagePrice[1], 64)
+		} else {
+			resGP2, err := client.GetProducts(context.TODO(), &pricing.GetProductsInput{
+				ServiceCode: aws.String("AmazonEC2"),
+				Filters: []pricingTypes.Filter{
+					pricingTypes.Filter{
+						Type:  pricingTypes.FilterTypeTermMatch,
+						Field: aws.String("productFamily"),
+						Value: aws.String("Storage"),
+					},
+					pricingTypes.Filter{
+						Type:  pricingTypes.FilterTypeTermMatch,
+						Field: aws.String("volumeApiName"),
+						Value: aws.String("gp2"),
+					},
+					pricingTypes.Filter{
+						Type:  pricingTypes.FilterTypeTermMatch,
+						Field: aws.String("location"),
+						Value: aws.String(AWS_REGIONS[region]),
+					},
+				},
+			})
+
+			if err == nil {
+				if len(resGP2.PriceList) > 0 {
+					storagePrice := re.FindStringSubmatch(resGP2.PriceList[0])
+					prices.Volume, _ = strconv.ParseFloat(storagePrice[1], 64)
+				}
+			}
+		}
+	}
+
+	resSnapShot, err := client.GetProducts(context.TODO(), &pricing.GetProductsInput{
+		ServiceCode: aws.String("AmazonEC2"),
+		Filters: []pricingTypes.Filter{
+			pricingTypes.Filter{
+				Type:  pricingTypes.FilterTypeTermMatch,
+				Field: aws.String("productFamily"),
+				Value: aws.String("Storage Snapshot"),
+			},
+			pricingTypes.Filter{
+				Type:  pricingTypes.FilterTypeTermMatch,
+				Field: aws.String("storageMedia"),
+				Value: aws.String("Amazon S3"),
+			},
+			pricingTypes.Filter{
+				Type:  pricingTypes.FilterTypeTermMatch,
+				Field: aws.String("location"),
+				Value: aws.String(AWS_REGIONS[region]),
+			},
+		},
+	})
+
+	if err == nil {
+		snapShotPrice := re.FindStringSubmatch(resSnapShot.PriceList[0])
+		prices.Snapshots, _ = strconv.ParseFloat(snapShotPrice[1], 64)
+	}
+
+	resBandwidth, err := client.GetProducts(context.TODO(), &pricing.GetProductsInput{
+		ServiceCode: aws.String("AWSDataTransfer"),
+		Filters: []pricingTypes.Filter{
+			pricingTypes.Filter{
+				Type:  pricingTypes.FilterTypeTermMatch,
+				Field: aws.String("toLocationType"),
+				Value: aws.String("Other"),
+			},
+			pricingTypes.Filter{
+				Type:  pricingTypes.FilterTypeTermMatch,
+				Field: aws.String("toLocation"),
+				Value: aws.String("External"),
+			},
+			pricingTypes.Filter{
+				Type:  pricingTypes.FilterTypeTermMatch,
+				Field: aws.String("transferType"),
+				Value: aws.String("AWS Outbound"),
+			},
+			pricingTypes.Filter{
+				Type:  pricingTypes.FilterTypeTermMatch,
+				Field: aws.String("fromLocation"),
+				Value: aws.String(AWS_REGIONS[region]),
+			},
+		},
+	})
+
+	if err == nil {
+		reBW := regexp.MustCompile(`("endRange":"10240".*?"beginRange":"1".*?}})`)
+
+		bandwidthPrice := reBW.FindStringSubmatch(resBandwidth.PriceList[0])
+		bandwidthPrice = re.FindStringSubmatch(bandwidthPrice[1])
+		prices.Bandwidth, _ = strconv.ParseFloat(bandwidthPrice[1], 64)
+	}
+
+	return prices
 }
 
 func (c *AWSClient) GetRegions() []AWSRegion {

@@ -45,6 +45,19 @@ func GetAWSGPUInstances(c echo.Context) error {
 	})
 }
 
+func GetAWSPricing(c echo.Context) error {
+	region := c.FormValue("region")
+
+	sess, _ := session.Get("session", c)
+	client := models.NewAWSClient(sess.Values["accessKey"].(string), sess.Values["secretKey"].(string), sess.Values["defaultRegion"].(string))
+	prices := client.GetPrices(region)
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"success": true,
+		"data":    prices,
+	})
+}
+
 func VerifiyAWSCredentials(c echo.Context) error {
 	creds := new(AWSCredentials)
 
