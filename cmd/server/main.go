@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 
+	"github.com/sereneblue/lakitu/internal/middleware"
 	"github.com/sereneblue/lakitu/internal/routes"
 	"github.com/sereneblue/lakitu/models"
 )
@@ -34,11 +35,11 @@ func main() {
 	sess.GET("/logout", routes.Logout)
 
 	aws := e.Group("/aws")
-	aws.GET("/regions", routes.GetAWSRegions)
 	aws.POST("/verify", routes.VerifiyAWSCredentials)
 	aws.POST("/ping", routes.PingAWS)
-	aws.POST("/gpu-instances", routes.GetAWSGPUInstances)
-	aws.POST("/pricing", routes.GetAWSPricing)
+	aws.GET("/regions", routes.GetAWSRegions, middleware.RequireSession)
+	aws.POST("/gpu-instances", routes.GetAWSGPUInstances, middleware.RequireSession)
+	aws.POST("/pricing", routes.GetAWSPricing, middleware.RequireSession)
 
 	e.Logger.Fatal(e.Start("127.0.0.1:8080"))
 }

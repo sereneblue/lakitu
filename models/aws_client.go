@@ -28,7 +28,7 @@ type AWSGPUInstance struct {
 type AWSPrices struct {
 	Bandwidth float64 `json:"bandwidth"`
 	Volume    float64 `json:"volume"`
-	Snapshots float64 `json:"snapshots"`
+	Snapshots float64 `json:"snapshot"`
 }
 
 type AWSRegion struct {

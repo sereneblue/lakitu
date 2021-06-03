@@ -19,6 +19,7 @@ type AWSCredentials struct {
 
 func GetAWSRegions(c echo.Context) error {
 	sess, _ := session.Get("session", c)
+
 	client := models.NewAWSClient(sess.Values["accessKey"].(string), sess.Values["secretKey"].(string), sess.Values["defaultRegion"].(string))
 	regions := client.GetRegions()
 
@@ -34,6 +35,7 @@ func GetAWSGPUInstances(c echo.Context) error {
 	region := c.FormValue("region")
 
 	sess, _ := session.Get("session", c)
+
 	client := models.NewAWSClient(sess.Values["accessKey"].(string), sess.Values["secretKey"].(string), sess.Values["defaultRegion"].(string))
 	instances := client.GetGPUInstances(region)
 
@@ -49,6 +51,7 @@ func GetAWSPricing(c echo.Context) error {
 	region := c.FormValue("region")
 
 	sess, _ := session.Get("session", c)
+
 	client := models.NewAWSClient(sess.Values["accessKey"].(string), sess.Values["secretKey"].(string), sess.Values["defaultRegion"].(string))
 	prices := client.GetPrices(region)
 
