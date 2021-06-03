@@ -16,10 +16,13 @@
 	export let action: ModalAction;
 	export let title: string = '';
 	export let text: string = '';
+	export let dismissible: boolean = true;
 	export let show: boolean = false;
 
 	const closeModal = (): void => {
-		show = false;
+		if (dismissible) {
+			show = false;
+		}
 	};
 
 	const clickOutside = (node: Node, closeAction: Function): object => {
@@ -48,7 +51,7 @@
 
 	const init = (): object => {
 		const handleClose = (e: KeyboardEvent) => {
-			if (e.key === 'Escape') {
+			if (e.key === 'Escape' && dismissible) {
 				closeModal();
 			}
 		};
@@ -91,12 +94,14 @@
 					class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform sm:my-8 sm:align-middle sm:max-w-lg w-full"
 				>
 					<div class="relative bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-						<div
-							class="absolute top-0 right-0 h-6 w-6 m-4 cursor-pointer text-gray-900 opacity-25 hover:opacity-50"
-							on:click={closeModal}
-						>
-							<Icon icon="x" />
-						</div>
+						{#if dismissible}
+							<div
+								class="absolute top-0 right-0 h-6 w-6 m-4 cursor-pointer text-gray-900 opacity-25 hover:opacity-50"
+								on:click={closeModal}
+							>
+								<Icon icon="x" />
+							</div>
+						{/if}
 						<div class="sm:flex sm:items-start" class:space-x-2={type != 'default'}>
 							{#if type != 'default'}
 								<div
@@ -121,7 +126,7 @@
 								<h3 class="text-lg leading-6 font-medium" id="modal-title">
 									{title}
 								</h3>
-								<div class="mt-2 max-h-84 modal-content">
+								<div class="mt-4 max-h-84 modal-content">
 									{#if text}
 										<p class="text-sm">
 											{text}
