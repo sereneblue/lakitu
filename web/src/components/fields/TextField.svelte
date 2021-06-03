@@ -5,7 +5,7 @@
 	import { Icon } from '../base';
 
 	type Align = 'left' | 'center';
-	type InputType = 'text' | 'password';
+	type InputType = 'text' | 'number' | 'password';
 
 	export let icon: string = '';
 	export let type: InputType = 'text';
@@ -16,6 +16,7 @@
 	export let disabled: boolean = false;
 	export let align: Align = 'left';
 	export let placeholder: string = '';
+	export let suffix: string = '';
 	export let stroke: number = 2;
 
 	const dispatch = createEventDispatcher();
@@ -44,27 +45,46 @@
 			<Icon {icon} />
 		</div>
 	{/if}
-	<input
-		class="
-			appearance-none
-			bg-nord0 bg-opacity-5 dark:bg-nord6 dark:bg-opacity-10 
-			border-2 border-transparent
-			rounded w-full
-			p-2
-			leading-tight
-			focus-visible:bg-white
-			focus:outline-none focus:border-accent-200"
-		class:w-full={full}
-		class:pl-9={icon}
-		class:text-left={align === 'left'}
-		class:text-center={align === 'center'}
-		class:error={hasError}
-		on:input={change}
-		{value}
-		{type}
-		{placeholder}
-		{disabled}
-	/>
+	<div class="flex items-center">
+		<input
+			class="
+				appearance-none
+				bg-nord0 bg-opacity-5 dark:bg-nord6 dark:bg-opacity-10 
+				border-2 border-transparent
+				w-full
+				p-2
+				leading-tight
+				focus-visible:bg-white
+				focus:outline-none focus:border-accent-200"
+			class:w-full={full}
+			class:pl-9={icon}
+			class:text-left={align === 'left'}
+			class:text-center={align === 'center'}
+			class:error={hasError}
+			class:rounded={!suffix}
+			on:input={change}
+			class:rounded-l={suffix}
+			{value}
+			{type}
+			{placeholder}
+			{disabled}
+		/>
+		{#if suffix}
+			<span
+				class="
+				bg-nord0 bg-opacity-5 dark:bg-nord6 dark:bg-opacity-10
+				border
+				border-l-2
+				rounded-r
+				p-2
+				leading-tight"
+			>
+				<span class="opacity-75">
+					{suffix}
+				</span>
+			</span>
+		{/if}
+	</div>
 	<div
 		class="text-danger-100 dark:text-danger-200"
 		class:text-left={align === 'left'}
