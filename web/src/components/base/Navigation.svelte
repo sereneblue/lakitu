@@ -28,19 +28,6 @@
 		>
 			<div role="none">
 				<a
-					href="library"
-					class="text-gray-700 px-4 py-2 hover:bg-nord6 block py-1 text-sm no-underline flex items-center space-x-2"
-					class:hidden={path === '/library'}
-					role="menuitem"
-					tabindex="-1"
-					rel="external"
-				>
-					<span class="w-4 h-4">
-						<Icon icon="grid" />
-					</span>
-					<span>Library</span>
-				</a>
-				<a
 					href="machines"
 					class="text-gray-700 px-4 py-2 hover:bg-nord6 block py-1 text-sm no-underline flex items-center space-x-2"
 					class:hidden={path === '/machines'}
