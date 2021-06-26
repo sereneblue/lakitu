@@ -42,7 +42,7 @@
 	{/if}
 	{#if icon}
 		<div class="absolute ml-2 mt-2 w-6 h-6 opacity-50">
-			<Icon {icon} />
+			<Icon {icon} {stroke} />
 		</div>
 	{/if}
 	<div class="flex items-center">
