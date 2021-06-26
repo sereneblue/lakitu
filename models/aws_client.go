@@ -98,7 +98,6 @@ func (c *AWSClient) GetGPUInstances(region string) []AWSGPUInstance {
 	timestamp := time.Now()
 	output, err := client.DescribeSpotPriceHistory(context.TODO(), &ec2.DescribeSpotPriceHistoryInput{
 		InstanceTypes: []types.InstanceType{
-			types.InstanceTypeG22xlarge,
 			types.InstanceTypeG3sXlarge,
 			types.InstanceTypeG4dnXlarge,
 		},
