@@ -37,9 +37,9 @@ func main() {
 	aws := e.Group("/aws")
 	aws.POST("/verify", routes.VerifiyAWSCredentials)
 	aws.POST("/ping", routes.PingAWS)
-	aws.GET("/regions", routes.GetAWSRegions, middleware.RequireSession)
-	aws.POST("/gpu-instances", routes.GetAWSGPUInstances, middleware.RequireSession)
-	aws.POST("/pricing", routes.GetAWSPricing, middleware.RequireSession)
+	aws.GET("/regions", routes.GetAWSRegions, middleware.RequireLogin)
+	aws.POST("/gpu-instances", routes.GetAWSGPUInstances, middleware.RequireLogin)
+	aws.POST("/pricing", routes.GetAWSPricing, middleware.RequireLogin)
 
 	e.Logger.Fatal(e.Start("127.0.0.1:8080"))
 }
