@@ -82,8 +82,8 @@
 	};
 
 	$: disabled = {
-		creds: state.form.awsSecretKey.value === '' || state.form.awsSecretKey.value === '',
-		pwd: state.form.password !== state.form.confirmPassword
+		creds: state.form.awsAccessKeyId.value === '' || state.form.awsSecretKey.value === '',
+		pwd: (state.form.password !== state.form.confirmPassword) || !state.form.password
 	};
 </script>
 
