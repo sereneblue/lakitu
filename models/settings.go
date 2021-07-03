@@ -25,6 +25,16 @@ func (s *Settings) Insert() (bool, error) {
 	return true, nil
 }
 
+func (s *Settings) Update() (bool, error) {
+	_, err := engine.Update(s, &Settings{Key: s.Key})
+
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 func GetAWSSettings() (string, string) {
 	var accessKey, secretKey Settings
 
