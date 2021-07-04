@@ -31,6 +31,7 @@ func main() {
 	setup.POST("/complete", routes.CompleteSetup)
 
 	sess := e.Group("/session")
+	sess.POST("/change-password", routes.ChangePassword)
 	sess.POST("/login", routes.Login)
 	sess.GET("/logout", routes.Logout)
 

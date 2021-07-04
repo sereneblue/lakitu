@@ -11,6 +11,89 @@ import (
 	"github.com/sereneblue/lakitu/models"
 )
 
+func ChangePassword(c echo.Context) error {
+	oldPwd := c.FormValue("oldPwd")
+	newPwd := c.FormValue("newPwd")
+	confirmNewPwd := c.FormValue("confirmNewPwd")
+
+	if newPwd != confirmNewPwd {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"success": false,
+			"message": "New password does not match",
+		})
+	}
+
+	match, err := argon2id.ComparePasswordAndHash(oldPwd, models.GetPasswordHash())
+	if err != nil {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"success": false,
+			"message": "There was an error changing your password",
+		})
+	}
+
+	if !match {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"success": false,
+			"message": "Invalid password",
+		})
+	}
+
+	encKey, salt := models.GetEncryptedData()
+
+	KEK := util.CreateHashWithSalt(oldPwd, []byte(salt), models.KEKParams)
+
+	key, err := util.Decrypt(encKey, KEK)
+	if err != nil {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"success": false,
+			"message": "Could not decrypt encryption key",
+		})
+	}
+
+	var s models.Settings
+
+	pwdHash, err := argon2id.CreateHash(newPwd, argon2id.DefaultParams)
+	if err != nil {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"success": false,
+			"message": "Could not hash password",
+		})
+	}
+	s.Key = "password"
+	s.Value = pwdHash
+	s.Update()
+
+	newKEK, err := argon2id.CreateHash(newPwd, models.KEKParams)
+	if err != nil {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"success": false,
+			"message": "Could not generate new KEK",
+		})
+	}
+
+	_, newSalt, _, _ := argon2id.DecodeHash(newKEK)
+	s.Key = "encSalt"
+	s.Value = string(newSalt)
+	s.Update()
+
+	// save encrypted key
+	newEncKey, err := util.Encrypt(key, newKEK)
+	if err != nil {
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"success": false,
+			"message": "Could not generate new encrypted key",
+		})
+	}
+
+	s.Key = "encKey"
+	s.Value = newEncKey
+	s.Update()
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"success": true,
+	})
+}
+
 func Login(c echo.Context) error {
 	loginPwd := c.FormValue("password")
 
