@@ -16,8 +16,11 @@
 	export let disabled: boolean = false;
 	export let align: Align = 'left';
 	export let placeholder: string = '';
+	export let submit: Function;
 	export let suffix: string = '';
 	export let stroke: number = 2;
+
+	let loading = false;
 
 	const dispatch = createEventDispatcher();
 
@@ -25,6 +28,14 @@
 		dispatch('change', {
 			value: e.target.value
 		});
+	};
+
+	const handleEnter = async (e: Event): Promise<void> => {
+		if (e.key === 'Enter' && submit && !loading) {
+			loading = true;
+			await submit();
+			loading = false;
+		}
 	};
 
 	$: hasError = error;
@@ -63,6 +74,7 @@
 			class:error={hasError}
 			class:rounded={!suffix}
 			on:input={change}
+			on:keypress={handleEnter}
 			class:rounded-l={suffix}
 			{value}
 			{type}
