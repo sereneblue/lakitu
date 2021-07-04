@@ -42,6 +42,7 @@
 					placeholder={$_('fields.password')}
 					align="center"
 					error={state.password.error}
+					submit={handleLogin}
 					full
 				/>
 			</div>
