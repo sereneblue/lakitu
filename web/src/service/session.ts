@@ -20,4 +20,25 @@ const login = async (password: string): Promise<Response> => {
 	};
 };
 
-export { login };
+const updatePassword = async (
+	oldPwd: string,
+	newPwd: string,
+	confirmNewPwd: string
+): Promise<Response> => {
+	const formData = new URLSearchParams();
+	formData.append('oldPwd', oldPwd);
+	formData.append('newPwd', newPwd);
+	formData.append('confirmNewPwd', confirmNewPwd);
+
+	let res = await fetch(window.location.origin + '/session/change-password', {
+		method: 'POST',
+		credentials: 'include',
+		body: formData
+	});
+
+	if (res.ok) {
+		return await res.json();
+	}
+};
+
+export { login, updatePassword };
