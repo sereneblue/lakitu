@@ -91,6 +91,83 @@ func ChangePassword(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"success": true,
+		"message": "Password was successfully updated",
+	})
+}
+
+func ChangePreferences(c echo.Context) error {
+	sess, _ := session.Get("session", c)
+
+	accessKey := c.FormValue("accessKey")
+	secretKey := c.FormValue("secretKey")
+	defaultRegion := c.FormValue("defaultRegion")
+
+	if defaultRegion != sess.Values["defaultRegion"].(string) {
+		if _, ok := models.AWS_REGIONS[defaultRegion]; !ok {
+			return c.JSON(http.StatusOK, map[string]interface{}{
+				"success": false,
+				"message": "Invalid AWS region",
+			})
+		}
+
+		sess.Values["defaultRegion"] = defaultRegion
+	}
+
+	// check if aws keys changed
+	if accessKey != sess.Values["accessKey"].(string) || secretKey != sess.Values["secretKey"].(string) {
+		client := models.NewAWSClient(accessKey, secretKey, defaultRegion)
+		success, err := client.IsValidAWSCredentials()
+
+		if err != nil {
+			return c.JSON(http.StatusOK, map[string]interface{}{
+				"success": success,
+				"message": err.Error(),
+			})
+		}
+
+		encKey, _ := models.GetEncryptedData()
+
+		key, err := util.Decrypt(encKey, sess.Values["KEK"].(string))
+		if err != nil {
+			return c.JSON(http.StatusOK, map[string]interface{}{
+				"success": false,
+				"message": "Could not decrypt encryption key",
+			})
+		}
+
+		var s models.Settings
+		
+		encAWSAccessKey, err := util.Encrypt(accessKey, key)
+		if err != nil {
+			return c.JSON(http.StatusOK, map[string]interface{}{
+				"success": false,
+				"message": "Could not encrypt AWS access key",
+			})
+		}
+		s.Key = "awsAccessKeyId"
+		s.Value = encAWSAccessKey
+		s.Update()
+
+		encAWSSecretKey, err := util.Encrypt(secretKey,	 key)
+		if err != nil {
+			return c.JSON(http.StatusOK, map[string]interface{}{
+				"success": false,
+				"message": "Could not encrypt AWS secret key",
+			})
+		}
+		s.Key = "awsSecretKey"
+		s.Value = encAWSSecretKey
+		s.Update()
+
+		sess.Values["accessKey"] = accessKey
+		sess.Values["secretKey"] = secretKey
+	}
+
+	sess.Save(c.Request(), c.Response())
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"success": true,
+		"message": "Preferences were successfully updated",
 	})
 }
 
@@ -144,6 +221,7 @@ func Login(c echo.Context) error {
 
 	sess, _ := session.Get("session", c)
 	sess.Values["authenticated"] = true
+	sess.Values["KEK"] = KEK
 	sess.Values["accessKey"] = awsAccessKey
 	sess.Values["secretKey"] = awsSecretKey
 	sess.Values["defaultRegion"] = models.GetDefaultRegion()
@@ -162,5 +240,22 @@ func Logout(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"success": true,
+	})
+}
+
+func UserData(c echo.Context) error {
+	sess, _ := session.Get("session", c)
+
+	client := models.NewAWSClient(sess.Values["accessKey"].(string), sess.Values["secretKey"].(string), sess.Values["defaultRegion"].(string))
+	regions := client.GetRegions()
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"success": true,
+		"data": map[string]interface{}{
+			"accessKey": sess.Values["accessKey"],
+			"secretKey": sess.Values["secretKey"],
+			"defaultRegion": sess.Values["defaultRegion"],
+			"regions": regions,
+		},
 	})
 }

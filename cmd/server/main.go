@@ -32,8 +32,10 @@ func main() {
 
 	sess := e.Group("/session")
 	sess.POST("/change-password", routes.ChangePassword)
+	sess.POST("/update-preferences", routes.ChangePreferences)
 	sess.POST("/login", routes.Login)
 	sess.GET("/logout", routes.Logout)
+	sess.GET("/user", routes.UserData, middleware.RequireLogin)
 
 	aws := e.Group("/aws")
 	aws.POST("/verify", routes.VerifiyAWSCredentials)
