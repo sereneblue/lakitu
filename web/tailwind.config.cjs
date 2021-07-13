@@ -1,3 +1,5 @@
+const colors = require('tailwindcss/colors');
+
 module.exports = {
 	purge: {
 		mode: 'all',
@@ -11,6 +13,8 @@ module.exports = {
 	theme: {
 		extend: {
 			colors: {
+				yellow: colors.amber,
+				lime: colors.lime,
 				nord0: '#2e3440',
 				nord1: '#3b4252',
 				nord2: '#434c5e',
