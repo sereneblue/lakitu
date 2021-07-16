@@ -9,16 +9,22 @@
 	export let type: ButtonType = 'default';
 	export let size: ButtonSize = 'md';
 	export let disabled: boolean = false;
-	export let loading: boolean = false;
 	export let outline: boolean = false;
+	export let once: boolean = false;
 	export let full: boolean = false;
 	export let flat: boolean = false;
 
 	export let onClick: Function = () => {};
 
-	const btnClick = (): void => {
-		if (!loading) {
-			onClick();
+	let state = {
+		loading: false,
+	};
+
+	const btnClick = async (): Promise<void> => {
+		if (!state.loading) {
+			state.loading = true;
+			await onClick();
+			state.loading = false;
 		}
 	};
 </script>
@@ -45,7 +51,7 @@
 	on:click={btnClick}
 	{disabled}
 >
-	<div class="flex items-center w-full justify-center" class:invisible={loading}>
+	<div class="flex items-center w-full justify-center" class:invisible={state.loading}>
 		{#if icon}
 			<span class="icon">
 				<Icon {icon} />
@@ -55,7 +61,7 @@
 			<span>{text}</span>
 		{/if}
 	</div>
-	{#if loading}
+	{#if state.loading}
 		<!--- loading spinner --->
 		<div class="absolute top-0 left-0 flex flex-col items-center justify-center w-full h-full">
 			<span class="w-full h-3/5">

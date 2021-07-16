@@ -15,7 +15,6 @@
 	const dispatch = createEventDispatcher();
 
 	const testLatency = async (): Promise<void> => {
-		loading = true;
 		pingResults = [];
 
 		let res = await pingAWS(regions.map((r) => r.value));
@@ -30,12 +29,9 @@
 			pingResults.sort((a, b) => a.latency - b.latency);
 			pingResults = pingResults;
 		}
-
-		loading = false;
 	};
 
 	let pingResults: PingResult[] = [];
-	let loading: boolean = false;
 
 	$: if (!show) dispatch('close');
 </script>
@@ -68,6 +64,6 @@
 		</table>
 	{/if}
 	<div class="flex justify-center mt-4">
-		<Button type="primary" text="Test" onClick={testLatency} {loading} />
+		<Button type="primary" text="Test" onClick={testLatency} />
 	</div>
 </Modal>

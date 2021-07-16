@@ -7,7 +7,6 @@
 	import { login } from '../service/session';
 
 	let state = {
-		loading: false,
 		password: {
 			value: '',
 			error: ''
@@ -15,9 +14,7 @@
 	};
 
 	const handleLogin = async (): Promise<void> => {
-		state.loading = true;
 		let res = await login(state.password.value);
-		state.loading = false;
 
 		if (res.success) {
 			goto('/machines');
@@ -51,7 +48,6 @@
 					type="primary"
 					text={$_('buttons.login')}
 					size="lg"
-					loading={state.loading}
 					onClick={handleLogin}
 				/>
 			</div>
