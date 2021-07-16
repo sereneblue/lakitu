@@ -8,3 +8,5 @@ export type Response = {
 	message?: string;
 	data?: object;
 };
+
+export type NotificationType = 'warning' | 'info' | 'danger' | 'success';
