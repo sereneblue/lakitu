@@ -44,12 +44,7 @@
 				/>
 			</div>
 			<div>
-				<Button
-					type="primary"
-					text={$_('buttons.login')}
-					size="lg"
-					onClick={handleLogin}
-				/>
+				<Button type="primary" text={$_('buttons.login')} size="lg" onClick={handleLogin} />
 			</div>
 		</div>
 	</div>

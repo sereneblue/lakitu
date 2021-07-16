@@ -17,7 +17,7 @@
 	export let onClick: Function = () => {};
 
 	let state = {
-		loading: false,
+		loading: false
 	};
 
 	const btnClick = async (): Promise<void> => {
