@@ -1,6 +1,5 @@
 <script lang="typescript">
 	import { goto } from '$app/navigation';
-	import { _ } from 'svelte-i18n/dist/runtime.cjs.js';
 
 	import { Button, Icon, Modal } from '../components/base';
 	import { TextField } from '../components/fields';
@@ -36,7 +35,7 @@
 				<TextField
 					on:change={(e) => (state.password.value = e.detail.value)}
 					type="password"
-					placeholder={$_('fields.password')}
+					placeholder="Password"
 					align="center"
 					error={state.password.error}
 					submit={handleLogin}
@@ -44,7 +43,7 @@
 				/>
 			</div>
 			<div>
-				<Button type="primary" text={$_('buttons.login')} size="lg" onClick={handleLogin} />
+				<Button type="primary" text="Login" size="lg" onClick={handleLogin} />
 			</div>
 		</div>
 	</div>

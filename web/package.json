@@ -33,8 +33,5 @@
 	"type": "module",
 	"engines": {
 		"node": ">= 12.17.0"
-	},
-	"dependencies": {
-		"svelte-i18n": "3.3.9"
 	}
 }
