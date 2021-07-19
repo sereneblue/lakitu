@@ -25,7 +25,7 @@
 	class:bg-warning={type === 'warning'}
 	class:bg-success={type === 'success'}
 	class:text-yellow-700={type === 'warning'}
-	class:text-lime-700={type === 'success'}
+	class:text-lime-800={type === 'success'}
 	bind:this={node}
 >
 	<div class="w-6">
