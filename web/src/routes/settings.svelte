@@ -20,6 +20,7 @@
 
 	import { Button, Icon, Navigation } from '../components/base';
 	import { TextField, SelectField } from '../components/fields';
+	import { LatencyTest } from '../components/modals';
 
 	import { getUserData, updatePassword, updatePreferences } from '../service/session';
 	import { notify } from '../service/util';
@@ -112,6 +113,7 @@
 			updatePreferences: null
 		},
 		regions: [],
+		showLatencyModal: false,
 		settings: [
 			{ text: 'AWS', value: ACTIVE_TAB.AWS },
 			{ text: 'User', value: ACTIVE_TAB.USER },
@@ -132,6 +134,12 @@
 </svelte:head>
 
 <Navigation />
+
+<LatencyTest
+	show={state.showLatencyModal}
+	on:close={() => (state.showLatencyModal = false)}
+	regions={state.regions}
+/>
 
 <div class="flex flex-col items-center w-full" id="settings">
 	<div class="min-w-full max-w-screen-lg h-full my-4">
@@ -202,13 +210,21 @@
 										full
 									/>
 								</div>
-								<div>
-									<SelectField
-										on:change={(e) => (state.form.defaultRegion = e.detail.value)}
-										label="Default Region"
-										selectedValue={state.form.defaultRegion}
-										options={state.regions}
-										full
+								<div class="flex space-x-2 items-end">
+									<div class="flex-1">
+										<SelectField
+											on:change={(e) => (state.form.defaultRegion = e.detail.value)}
+											label="Default Region"
+											selectedValue={state.form.defaultRegion}
+											options={state.regions}
+											full
+										/>
+									</div>
+									<Button
+										type="primary"
+										icon="radio"
+										disabled={prefDisabled}
+										onClick={() => (state.showLatencyModal = true)}
 									/>
 								</div>
 								<Button
