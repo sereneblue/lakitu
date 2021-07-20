@@ -53,7 +53,7 @@
 >
 	<div class="flex items-center w-full justify-center" class:invisible={state.loading}>
 		{#if icon}
-			<span class="icon">
+			<span class="icon" class:no-text={!text}>
 				<Icon {icon} />
 			</span>
 		{/if}
@@ -176,9 +176,13 @@
 	}
 
 	/* icon */
-
 	span.icon {
 		@apply w-4 h-4;
+	}
+
+	/* only icon */
+	span.icon.no-text {
+		@apply w-5 h-5 my-1;
 	}
 
 	span.icon + span {
