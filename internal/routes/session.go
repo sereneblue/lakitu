@@ -9,6 +9,7 @@ import (
 
 	"github.com/sereneblue/lakitu/internal/util"
 	"github.com/sereneblue/lakitu/models"
+	"github.com/sereneblue/lakitu/models/awsclient"
 )
 
 func ChangePassword(c echo.Context) error {
@@ -103,7 +104,7 @@ func ChangePreferences(c echo.Context) error {
 	defaultRegion := c.FormValue("defaultRegion")
 
 	if defaultRegion != sess.Values["defaultRegion"].(string) {
-		if _, ok := models.AWS_REGIONS[defaultRegion]; !ok {
+		if _, ok := awsclient.AWS_REGIONS[defaultRegion]; !ok {
 			return c.JSON(http.StatusOK, map[string]interface{}{
 				"success": false,
 				"message": "Invalid AWS region",
@@ -115,7 +116,7 @@ func ChangePreferences(c echo.Context) error {
 
 	// check if aws keys changed
 	if accessKey != sess.Values["accessKey"].(string) || secretKey != sess.Values["secretKey"].(string) {
-		client := models.NewAWSClient(accessKey, secretKey, defaultRegion)
+		client := awsclient.NewAWSClient(accessKey, secretKey, defaultRegion)
 		success, err := client.IsValidAWSCredentials()
 
 		if err != nil {
@@ -136,7 +137,7 @@ func ChangePreferences(c echo.Context) error {
 		}
 
 		var s models.Settings
-		
+
 		encAWSAccessKey, err := util.Encrypt(accessKey, key)
 		if err != nil {
 			return c.JSON(http.StatusOK, map[string]interface{}{
@@ -148,7 +149,7 @@ func ChangePreferences(c echo.Context) error {
 		s.Value = encAWSAccessKey
 		s.Update()
 
-		encAWSSecretKey, err := util.Encrypt(secretKey,	 key)
+		encAWSSecretKey, err := util.Encrypt(secretKey, key)
 		if err != nil {
 			return c.JSON(http.StatusOK, map[string]interface{}{
 				"success": false,
@@ -246,16 +247,16 @@ func Logout(c echo.Context) error {
 func UserData(c echo.Context) error {
 	sess, _ := session.Get("session", c)
 
-	client := models.NewAWSClient(sess.Values["accessKey"].(string), sess.Values["secretKey"].(string), sess.Values["defaultRegion"].(string))
+	client := awsclient.NewAWSClient(sess.Values["accessKey"].(string), sess.Values["secretKey"].(string), sess.Values["defaultRegion"].(string))
 	regions := client.GetRegions()
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"success": true,
 		"data": map[string]interface{}{
-			"accessKey": sess.Values["accessKey"],
-			"secretKey": sess.Values["secretKey"],
+			"accessKey":     sess.Values["accessKey"],
+			"secretKey":     sess.Values["secretKey"],
 			"defaultRegion": sess.Values["defaultRegion"],
-			"regions": regions,
+			"regions":       regions,
 		},
 	})
 }

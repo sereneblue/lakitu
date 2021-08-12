@@ -9,7 +9,7 @@ import (
 
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
-	"github.com/sereneblue/lakitu/models"
+	"github.com/sereneblue/lakitu/models/awsclient"
 )
 
 type AWSCredentials struct {
@@ -20,7 +20,7 @@ type AWSCredentials struct {
 func GetAWSRegions(c echo.Context) error {
 	sess, _ := session.Get("session", c)
 
-	client := models.NewAWSClient(sess.Values["accessKey"].(string), sess.Values["secretKey"].(string), sess.Values["defaultRegion"].(string))
+	client := awsclient.NewAWSClient(sess.Values["accessKey"].(string), sess.Values["secretKey"].(string), sess.Values["defaultRegion"].(string))
 	regions := client.GetRegions()
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -36,7 +36,7 @@ func GetAWSGPUInstances(c echo.Context) error {
 
 	sess, _ := session.Get("session", c)
 
-	client := models.NewAWSClient(sess.Values["accessKey"].(string), sess.Values["secretKey"].(string), sess.Values["defaultRegion"].(string))
+	client := awsclient.NewAWSClient(sess.Values["accessKey"].(string), sess.Values["secretKey"].(string), sess.Values["defaultRegion"].(string))
 	instances := client.GetGPUInstances(region)
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -52,7 +52,7 @@ func GetAWSPricing(c echo.Context) error {
 
 	sess, _ := session.Get("session", c)
 
-	client := models.NewAWSClient(sess.Values["accessKey"].(string), sess.Values["secretKey"].(string), sess.Values["defaultRegion"].(string))
+	client := awsclient.NewAWSClient(sess.Values["accessKey"].(string), sess.Values["secretKey"].(string), sess.Values["defaultRegion"].(string))
 	prices := client.GetPrices(region)
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
@@ -71,7 +71,7 @@ func VerifiyAWSCredentials(c echo.Context) error {
 		})
 	}
 
-	client := models.NewAWSClient(creds.AccessKey, creds.SecretKey, "us-east-1")
+	client := awsclient.NewAWSClient(creds.AccessKey, creds.SecretKey, "us-east-1")
 	success, err := client.IsValidAWSCredentials()
 
 	if err != nil {

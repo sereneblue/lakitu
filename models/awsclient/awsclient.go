@@ -1,9 +1,12 @@
-package models
+package awsclient
 
 import (
 	"context"
+	"errors"
 	"regexp"
+	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -14,6 +17,10 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/pricing"
 	pricingTypes "github.com/aws/aws-sdk-go-v2/service/pricing/types"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
+)
+
+const (
+	AWS_TAG_KEY string = "test"
 )
 
 type AWSClient struct {
@@ -35,6 +42,13 @@ type AWSRegion struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 }
+
+type StreamSoftware string
+
+const (
+	PARSEC    StreamSoftware = "parsec"
+	MOONLIGHT StreamSoftware = "moonlight"
+)
 
 var AWS_REGIONS = map[string]string{
 	"us-east-2":      "US East (Ohio)",
@@ -85,6 +99,57 @@ func (c *AWSClient) IsValidAWSCredentials() (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (c *AWSClient) GetWindowsAMIId() (string, error) {
+	client := ec2.NewFromConfig(c.Config)
+
+	res, err := client.DescribeImages(context.TODO(), &ec2.DescribeImagesInput{
+		ExecutableUsers: []string{"all"},
+		Filters: []types.Filter{
+			types.Filter{
+				Name:   aws.String("architecture"),
+				Values: []string{"x86_64"},
+			},
+			types.Filter{
+				Name:   aws.String("platform"),
+				Values: []string{"windows"},
+			},
+			types.Filter{
+				Name:   aws.String("owner-alias"),
+				Values: []string{"amazon"},
+			},
+			types.Filter{
+				Name:   aws.String("name"),
+				Values: []string{"*English-Full-Base*"},
+			},
+		},
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	amiIds := map[string]string{}
+	for _, image := range res.Images {
+		if strings.HasPrefix(*image.Name, "Windows_Server") {
+			amiIds[*image.Name] = *image.ImageId
+		}
+	}
+
+	numAMIs := len(amiIds)
+
+	if numAMIs > 0 {
+		images := make([]string, 0, numAMIs)
+		for k := range amiIds {
+			images = append(images, k)
+		}
+		sort.Strings(images)
+
+		return amiIds[images[numAMIs-1]], nil
+	}
+
+	return "", errors.New("Unable to find Windows AMI")
 }
 
 func (c *AWSClient) GetGPUInstances(region string) []AWSGPUInstance {
