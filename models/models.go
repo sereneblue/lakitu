@@ -7,7 +7,7 @@ import (
 	"xorm.io/xorm"
 )
 
-var engine *xorm.Engine
+var Engine *xorm.Engine
 
 func InitDB() error {
 	userDir, err := os.UserConfigDir()
@@ -20,13 +20,13 @@ func InitDB() error {
 		return err
 	}
 
-	engine, err = xorm.NewEngine("sqlite3", userDir+"/lakitu/lakitu.db")
+	Engine, err = xorm.NewEngine("sqlite3", userDir+"/lakitu/lakitu.db")
 
 	if err != nil {
 		return err
 	}
 
-	err = engine.Sync2(new(Settings))
+	err = Engine.Sync2(new(Settings))
 	if err != nil {
 		return err
 	}
@@ -35,5 +35,5 @@ func InitDB() error {
 }
 
 func CloseDB() {
-	engine.Close()
+	Engine.Close()
 }

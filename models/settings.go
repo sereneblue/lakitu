@@ -16,7 +16,7 @@ var KEKParams = &argon2id.Params{
 }
 
 func (s *Settings) Insert() (bool, error) {
-	_, err := engine.Insert(s)
+	_, err := Engine.Insert(s)
 
 	if err != nil {
 		return false, err
@@ -26,7 +26,7 @@ func (s *Settings) Insert() (bool, error) {
 }
 
 func (s *Settings) Update() (bool, error) {
-	_, err := engine.Update(s, &Settings{Key: s.Key})
+	_, err := Engine.Update(s, &Settings{Key: s.Key})
 
 	if err != nil {
 		return false, err
@@ -38,12 +38,12 @@ func (s *Settings) Update() (bool, error) {
 func GetAWSSettings() (string, string) {
 	var accessKey, secretKey Settings
 
-	has, err := engine.Where("key = 'awsAccessKeyId'").Get(&accessKey)
+	has, err := Engine.Where("key = 'awsAccessKeyId'").Get(&accessKey)
 	if err != nil || !has {
 		return "", ""
 	}
 
-	has, err = engine.Where("key = 'awsSecretKey'").Get(&secretKey)
+	has, err = Engine.Where("key = 'awsSecretKey'").Get(&secretKey)
 	if err != nil || !has {
 		return "", ""
 	}
@@ -54,7 +54,7 @@ func GetAWSSettings() (string, string) {
 func GetDefaultRegion() string {
 	var s Settings
 
-	has, err := engine.Where("key = 'defaultRegion'").Get(&s)
+	has, err := Engine.Where("key = 'defaultRegion'").Get(&s)
 	if err != nil || !has {
 		return ""
 	}
@@ -65,12 +65,12 @@ func GetDefaultRegion() string {
 func GetEncryptedData() (string, string) {
 	var key, salt Settings
 
-	has, err := engine.Where("key = 'encKey'").Get(&key)
+	has, err := Engine.Where("key = 'encKey'").Get(&key)
 	if err != nil || !has {
 		return "", ""
 	}
 
-	has, err = engine.Where("key = 'encSalt'").Get(&salt)
+	has, err = Engine.Where("key = 'encSalt'").Get(&salt)
 	if err != nil || !has {
 		return "", ""
 	}
@@ -81,7 +81,7 @@ func GetEncryptedData() (string, string) {
 func GetPasswordHash() string {
 	var s Settings
 
-	has, err := engine.Where("key = 'password'").Get(&s)
+	has, err := Engine.Where("key = 'password'").Get(&s)
 	if err != nil || !has {
 		return ""
 	}
@@ -90,7 +90,7 @@ func GetPasswordHash() string {
 }
 
 func IsFirstRun() bool {
-	has, _ := engine.Table("settings").Exist()
+	has, _ := Engine.Table("settings").Exist()
 	if has {
 		return false
 	}
