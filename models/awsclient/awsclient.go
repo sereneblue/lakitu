@@ -50,6 +50,10 @@ const (
 	MOONLIGHT StreamSoftware = "moonlight"
 )
 
+func (s StreamSoftware) String() string {
+	return string(s)
+}
+
 var AWS_REGIONS = map[string]string{
 	"us-east-2":      "US East (Ohio)",
 	"us-east-1":      "US East (N. Virginia)",
