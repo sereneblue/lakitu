@@ -12,9 +12,11 @@
 	let node: HTMLElement;
 
 	onMount(() => {
-		setTimeout(() => {
-			node.remove();
-		}, duration);
+		if (duration) {
+			setTimeout(() => {
+				node.remove();
+			}, duration);
+		}
 	});
 </script>
 
