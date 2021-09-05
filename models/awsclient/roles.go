@@ -71,14 +71,14 @@ func (c *AWSClient) CreateRole() (AWSRole, error) {
 		                "StringEquals": {
 		                    "iam:AWSServiceName": [
 		                        "ec2scheduled.amazonaws.com",
-		                        "spot.amazonaws.com",
+		                        "spot.amazonaws.com"
 		                    ]
 		                }
 		            }
 		        }
 		    ]
 		}`),
-		PolicyName: aws.String("EC2 Limited Access"),
+		PolicyName: aws.String("EC2_Limited_Access"),
 		RoleName:   aws.String(roleName),
 	})
 
