@@ -13,8 +13,7 @@ type AWSSecurityGroup struct {
 	Id             int64
 	GroupId        string
 	StreamSoftware string
-	CreatedAt      int64 `xorm:"created"`
-	Deleted        bool
+	Created        time.Time `xorm:"created"`
 }
 
 func (sg *AWSSecurityGroup) TableName() string {
@@ -155,7 +154,7 @@ func (c *AWSClient) CreateSecurityGroup(streamSW StreamSoftware) (AWSSecurityGro
 	return group, nil
 }
 
-func (c *AWSClient) GetSecurityGroups() []types.SecurityGroup {
+func (c *AWSClient) GetSecurityGroups() ([]types.SecurityGroup, error) {
 	client := ec2.NewFromConfig(c.Config)
 	output, err := client.DescribeSecurityGroups(context.TODO(), &ec2.DescribeSecurityGroupsInput{
 		Filters: []types.Filter{
@@ -167,8 +166,8 @@ func (c *AWSClient) GetSecurityGroups() []types.SecurityGroup {
 	})
 
 	if err != nil {
-		return []types.SecurityGroup{}
+		return []types.SecurityGroup{}, err
 	}
 
-	return output.SecurityGroups
+	return output.SecurityGroups, nil
 }

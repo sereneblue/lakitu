@@ -10,11 +10,10 @@ import (
 )
 
 type AWSRole struct {
-	Id        int64
-	RoleId    string
-	RoleName  string
-	CreatedAt int64 `xorm:"created"`
-	Deleted   bool
+	Id       int64
+	RoleId   string
+	RoleName string
+	Created  time.Time `xorm:"created"`
 }
 
 func (a *AWSRole) TableName() string {
@@ -93,14 +92,14 @@ func (c *AWSClient) CreateRole() (AWSRole, error) {
 	return role, nil
 }
 
-func (c *AWSClient) GetRoles() []types.Role {
+func (c *AWSClient) GetRoles() ([]types.Role, error) {
 	client := iam.NewFromConfig(c.Config)
 
 	output, err := client.ListRoles(context.TODO(), &iam.ListRolesInput{})
 
 	if err != nil {
-		return []types.Role{}
+		return []types.Role{}, err
 	}
 
-	return output.Roles
+	return output.Roles, nil
 }
