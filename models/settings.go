@@ -1,6 +1,9 @@
 package models
 
-import "github.com/alexedwards/argon2id"
+import (
+	"github.com/alexedwards/argon2id"
+	"github.com/sereneblue/lakitu/models/awsclient"
+)
 
 type Settings struct {
 	Key   string `xorm:"not null unique index"`
@@ -87,6 +90,30 @@ func GetPasswordHash() string {
 	}
 
 	return s.Value
+}
+
+func GetRoleId() string {
+	var r awsclient.AWSRole
+
+	has, err := Engine.Desc("id").Get(&r)
+
+	if err != nil || !has {
+		return ""
+	}
+
+	return r.RoleId
+}
+
+func GetSecurityGroupId(streamSW awsclient.StreamSoftware) string {
+	var sg awsclient.AWSSecurityGroup
+
+	has, err := Engine.Desc("id").Where("stream_software = ?", streamSW).Get(&sg)
+
+	if err != nil || !has {
+		return ""
+	}
+
+	return sg.GroupId
 }
 
 func IsFirstRun() bool {
