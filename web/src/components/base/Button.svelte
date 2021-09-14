@@ -13,6 +13,7 @@
 	export let once: boolean = false;
 	export let full: boolean = false;
 	export let flat: boolean = false;
+	export let transparent: boolean = false;
 
 	export let onClick: Function = () => {};
 
@@ -44,6 +45,7 @@
 	class:disabled
 	class:outline
 	class:flat
+	class:transparent
 	class:w-full={full}
 	class:default={type === 'default'}
 	class:danger={type === 'danger'}
@@ -173,6 +175,10 @@
 	}
 	.danger.outline.disabled {
 		@apply hover:bg-transparent hover:text-danger-100 dark:hover:text-danger-200;
+	}
+
+	.transparent {
+		@apply bg-transparent hover:bg-transparent text-opacity-25 hover:text-opacity-75;
 	}
 
 	/* icon */
