@@ -4,13 +4,7 @@
 
 	import Icon from './Icon.svelte';
 	import Button from './Button.svelte';
-
-	type ModalType = 'warning' | 'info' | 'danger' | 'success' | 'default';
-	type ModalAction = {
-		text: string;
-		hideCancel: boolean;
-		func: Function;
-	};
+	import type { ModalType, ModalAction } from '../../service/types';
 
 	export let type: ModalType = 'default';
 	export let action: ModalAction;
@@ -153,7 +147,7 @@
 								/>
 							</span>
 							{#if !action.hideCancel}
-								<Button text="Cancel" outline flat onClick={closeModal} />
+								<Button text="Cancel" once outline flat onClick={closeModal} />
 							{/if}
 						</div>
 					{/if}
