@@ -22,7 +22,7 @@ const config = {
 		vite: {
 			server: {
 				proxy: {
-					'^/(aws|session|setup)/.*': {
+					'^/(aws|jobs|machine|session|setup)(\b|\/)(.*?)': {
 						target: 'http://localhost:8080/',
 						changeOrigin: true
 					}
