@@ -157,7 +157,7 @@ func (c *AWSClient) GetWindowsAMIId() (string, error) {
 }
 
 func (c *AWSClient) GetGPUInstances(region string) []AWSGPUInstance {
-	var instances []AWSGPUInstance
+	instances := []AWSGPUInstance{}
 
 	c.Config.Region = region
 
@@ -325,7 +325,7 @@ func (c *AWSClient) GetPrices(region string) AWSPrices {
 }
 
 func (c *AWSClient) GetRegions() []AWSRegion {
-	var regions []AWSRegion
+	regions := []AWSRegion{}
 
 	client := ec2.NewFromConfig(c.Config)
 	output, err := client.DescribeRegions(context.TODO(), &ec2.DescribeRegionsInput{})
