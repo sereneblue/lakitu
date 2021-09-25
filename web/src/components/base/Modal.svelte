@@ -143,6 +143,7 @@
 								<Button
 									text={action.text}
 									type={type === 'danger' ? 'danger' : 'primary'}
+									disabled={action.isDisabled}
 									onClick={action.func}
 								/>
 							</span>

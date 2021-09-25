@@ -27,6 +27,7 @@ export type MachineEvent = {
 
 export type ModalAction = {
 	text: string;
+	isDisabled?: boolean;
 	hideCancel: boolean;
 	func: Function;
 };
