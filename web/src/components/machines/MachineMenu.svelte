@@ -72,13 +72,13 @@
 					        aria-orientation="horizontal"
 					        aria-labelledby="options-menu">
 					        <button
-					          on:click={(e) => emit('changeRegion')}
+					          on:click={(e) => emit('transfer')}
 					          class="flex items-center w-full p-1.5 text-sm"
 					          role="menuitem">
 					          <span class="w-3 h-3 mx-1.5">
 					          	<Icon icon="refresh-cw" />
 					          </span>
-					          Change Region
+					          Change region
 					        </button>
 						</div>
 						<div
@@ -87,13 +87,13 @@
 					        aria-orientation="horizontal"
 					        aria-labelledby="options-menu">
 					        <button
-					          on:click={(e) => emit('increaseStorage')}
+					          on:click={(e) => emit('resize')}
 					          class="flex items-center w-full p-1.5 text-sm"
 					          role="menuitem">
 					          <span class="w-3 h-3 mx-1.5">
 					          	<Icon icon="plus" />
 					          </span>
-					          Increase Storage
+					          Add storage
 					        </button>
 						</div>
 					{:else if status === "online"}
