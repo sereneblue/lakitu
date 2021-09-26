@@ -19,8 +19,8 @@
 	let state = {...data, menuOpen: false };
 </script>
 
-<div class="flex items-center relative rounded shadow hover:shadow-md border border-nord4 dark:border-nord2 hover:border-accent-200">
-	<div class="h-24 w-24 p-4 bg-nord4 dark:bg-nord1">
+<div class="flex items-center relative rounded shadow hover:shadow-md border border-nord2 hover:border-accent-200">
+	<div class="h-24 w-24 p-4 bg-nord1">
 		<Icon icon="server" stroke={1} />
 	</div>
 	<MachineMenu 

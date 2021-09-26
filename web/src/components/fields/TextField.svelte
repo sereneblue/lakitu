@@ -60,7 +60,7 @@
 		<input
 			class="
 				appearance-none
-				bg-nord0 bg-opacity-5 dark:bg-nord6 dark:bg-opacity-10 
+				bg-nord6 bg-opacity-10 
 				border-2 border-transparent
 				w-full
 				p-2
@@ -84,7 +84,7 @@
 		{#if suffix}
 			<span
 				class="
-				bg-nord0 bg-opacity-5 dark:bg-nord6 dark:bg-opacity-10
+				bg-nord6 bg-opacity-10
 				border
 				border-l-2
 				rounded-r
@@ -98,7 +98,7 @@
 		{/if}
 	</div>
 	<div
-		class="text-danger-100 dark:text-danger-200"
+		class="text-danger-200"
 		class:text-left={align === 'left'}
 		class:text-right={align === 'right'}
 		class:text-center={align === 'center'}
@@ -109,7 +109,7 @@
 
 <style type="postcss">
 	.error {
-		@apply border-danger-100 dark:border-danger-200;
+		@apply border-danger-200;
 	}
 
 	.modal-content label input {

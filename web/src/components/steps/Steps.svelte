@@ -63,19 +63,18 @@
 
 <style type="postcss" global>
 	.step-index--num {
-		@apply bg-gray-300 dark:bg-gray-600
-        text-lg text-center dark:text-white font-bold
+		@apply bg-gray-600
+        text-lg text-white font-bold
         w-8 h-8
-        border border-2 border-nord6 dark:border-nord1
+        border border-2 border-nord1
         flex justify-center items-center
         rounded-full;
 	}
 	.active .step-index--num {
-		@apply bg-nord6 dark:bg-nord1
-        border-accent-100 dark:border-accent-200;
+		@apply bg-nord1 border-accent-200;
 	}
 	.complete .step-index--num {
-		@apply bg-accent-100 dark:bg-accent-200
+		@apply bg-accent-200
         text-white
         border-transparent
         transition transition-colors;
@@ -83,11 +82,11 @@
 	.step-index--rail {
 		@apply absolute top-1/2 left-1/2
         w-full h-1
-        bg-gray-300 dark:bg-gray-600
+        bg-gray-600
         transition transition-colors;
 	}
 	.complete .step-index--rail {
-		@apply bg-accent-100 dark:bg-accent-200;
+		@apply bg-accent-200;
 	}
 	ul li:last-child .step-index--rail {
 		@apply hidden;

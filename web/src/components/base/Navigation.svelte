@@ -71,7 +71,7 @@
 
 	<button
 		on:click={handleMenuClick}
-		class="fixed p-2 right-6 bottom-6 mr-2 rounded-md text-white dark:text-nord4 bg-accent-100 hover:bg-accent-200 dark:bg-accent-200 dark:hover:bg-accent-300"
+		class="fixed p-2 right-6 bottom-6 mr-2 rounded-md text-nord4 bg-accent-200 hover:bg-accent-300"
 	>
 		<div class="w-6 h-6 cursor-pointer">
 			<Icon {icon} />

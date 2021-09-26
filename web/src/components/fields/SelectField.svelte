@@ -30,7 +30,7 @@
 		class="
 			block
 			appearance-none
-			bg-nord0 bg-opacity-5 dark:bg-nord6 dark:bg-opacity-10 
+			bg-nord6 bg-opacity-10 
 			border-2 border-transparent
 			rounded w-full
 			p-2
@@ -62,7 +62,7 @@
 	}
 
 	.default {
-		@apply text-gray-400 dark:text-gray-500;
+		@apply text-gray-500;
 	}
 
 	.modal-content label select {

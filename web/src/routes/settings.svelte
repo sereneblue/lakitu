@@ -300,10 +300,10 @@
 </div>
 
 <style lang="postcss" global>
-	#settings .active {
-		@apply bg-nord4 dark:bg-nord1 font-bold text-accent-100;
+	#settings > ul li.active {
+		@apply bg-nord1 font-bold text-accent-100;
 	}
-	#settings li:not(.active) {
-		@apply opacity-50 hover:bg-nord4/75 dark:hover:bg-nord1/75;
+	#settings > ul li:not(.active) {
+		@apply opacity-50 hover:bg-nord1/75;
 	}
 </style>
