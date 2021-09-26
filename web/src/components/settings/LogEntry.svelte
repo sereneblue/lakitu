@@ -54,7 +54,7 @@
 	</div>
 	{#if state.open}
 		<p transition:slide>
-			{details.errorDetails}
+			{details.errorInfo}
 		</p>
 	{/if}
 </div>
