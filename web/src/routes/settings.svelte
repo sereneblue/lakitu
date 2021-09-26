@@ -24,12 +24,22 @@
 
 	import { getUserData, updatePassword, updatePreferences } from '../service/session';
 	import { notify } from '../service/util';
+	import { LogEntry } from '../components/settings';
 
 	enum ACTIVE_TAB {
 		AWS,
 		USER,
+		LOG,
 		ABOUT
 	}
+
+	export let userData: object = {
+		log: [],
+		regions: [],
+		accessKey: '',
+		secretKey: '',
+		defaultRegion: ''
+	};
 
 	const handleTabClick = (newTab: ACTIVE_TAB): void => {
 		state.activeTab = newTab;
@@ -37,6 +47,9 @@
 		switch (newTab) {
 			case ACTIVE_TAB.USER:
 				location.hash = '#user';
+				break;
+			case ACTIVE_TAB.LOG:
+				location.hash = '#log';
 				break;
 			case ACTIVE_TAB.ABOUT:
 				location.hash = '#about';
@@ -47,12 +60,6 @@
 		}
 	};
 
-	export let userData: object = {
-		regions: [],
-		accessKey: '',
-		secretKey: '',
-		defaultRegion: ''
-	};
 
 	const handleUpdatePassword = async (): Promise<void> => {
 		let res = await updatePassword(
@@ -79,6 +86,9 @@
 			case '#user':
 				state.activeTab = ACTIVE_TAB.USER;
 				break;
+			case '#log':
+				state.activeTab = ACTIVE_TAB.LOG;
+				break;
 			case '#about':
 				state.activeTab = ACTIVE_TAB.ABOUT;
 				break;
@@ -93,6 +103,7 @@
 				value: r.id
 			};
 		});
+		state.logs = userData.logs;
 		state.form.awsAccessKeyId = userData.accessKey;
 		state.form.awsSecretKey = userData.secretKey;
 		state.form.defaultRegion = userData.defaultRegion;
@@ -112,11 +123,13 @@
 			updatePassword: null,
 			updatePreferences: null
 		},
+		logs: [],
 		regions: [],
 		showLatencyModal: false,
 		settings: [
 			{ text: 'AWS', value: ACTIVE_TAB.AWS },
 			{ text: 'User', value: ACTIVE_TAB.USER },
+			{ text: 'Log', value: ACTIVE_TAB.LOG },
 			{ text: 'About', value: ACTIVE_TAB.ABOUT }
 		]
 	};
@@ -141,14 +154,14 @@
 	regions={state.regions}
 />
 
-<div class="flex flex-col items-center w-full" id="settings">
+<div class="flex flex-col items-center w-full">
 	<div class="min-w-full max-w-screen-lg h-full my-4">
 		<div class="max-w-screen-xl mx-auto">
 			<div class="mt-8">
 				<div class="flex justify-between items-center mb-4">
 					<h2 class="text-2xl mb-4">Settings</h2>
 				</div>
-				<div class="flex flex-col sm:flex-row">
+				<div class="flex flex-col sm:flex-row" id="settings">
 					<ul class="w-1/3 hidden sm:block space-y-2 mr-4">
 						<li
 							class="p-2 cursor-pointer rounded flex space-x-2 items-center"
@@ -172,6 +185,16 @@
 						</li>
 						<li
 							class="p-2 cursor-pointer rounded flex space-x-2 items-center"
+							class:active={state.activeTab === ACTIVE_TAB.LOG}
+							on:click={(e) => handleTabClick(ACTIVE_TAB.LOG)}
+						>
+							<div class="w-5 h-5">
+								<Icon icon="file-text" />
+							</div>
+							<span> Log </span>
+						</li>
+						<li
+							class="p-2 cursor-pointer rounded flex space-x-2 items-center"
 							class:active={state.activeTab === ACTIVE_TAB.ABOUT}
 							on:click={(e) => handleTabClick(ACTIVE_TAB.ABOUT)}
 						>
@@ -190,7 +213,7 @@
 						/>
 					</div>
 					<div class="w-full">
-						<div class="flex flex-col max-w-md space-y-4">
+						<div class="flex flex-col w-full md:max-w-md space-y-4">
 							{#if state.activeTab === ACTIVE_TAB.AWS}
 								<div>
 									<TextField
@@ -266,6 +289,22 @@
 									onClick={handleUpdatePassword}
 								/>
 								<div bind:this={state.notifications.updatePassword} />
+							{:else if state.activeTab === ACTIVE_TAB.LOG}
+								<div>
+									{#if userData.log.length}
+										<ul class="flex flex-col w-full divide-y-2 divide-nord1 divide-opacity-5">
+										{#each userData.log as l}
+											<li>
+												<LogEntry details={l} />
+											</li>
+										{/each}
+										</ul>
+									{:else}
+										<div class="text-lg">
+											No logs available
+										</div>
+									{/if}
+								</div>
 							{:else if state.activeTab === ACTIVE_TAB.ABOUT}
 								<div class="w-full text-lg">
 									<div>v0.1 by sereneblue</div>
