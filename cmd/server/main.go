@@ -15,7 +15,7 @@ import (
 var CookieStoreSecret string
 
 func main() {
-	err := models.InitDB()
+	err := models.IsInit()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,6 +43,11 @@ func main() {
 	aws.GET("/regions", routes.GetAWSRegions, middleware.RequireLogin)
 	aws.POST("/gpu-instances", routes.GetAWSGPUInstances, middleware.RequireLogin)
 	aws.POST("/pricing", routes.GetAWSPricing, middleware.RequireLogin)
+
+	jobs := e.Group("/jobs")
+	jobs.Use(middleware.RequireLogin)
+	jobs.GET("/", routes.GetCurrentJobStatus)
+	jobs.GET("/:id", routes.GetJobStatus)
 
 	e.Logger.Fatal(e.Start("127.0.0.1:8080"))
 }

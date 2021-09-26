@@ -10,7 +10,14 @@ import (
 	"github.com/sereneblue/lakitu/internal/util"
 	"github.com/sereneblue/lakitu/models"
 	"github.com/sereneblue/lakitu/models/awsclient"
+	"github.com/sereneblue/lakitu/models/taskrunner"
 )
+
+var runner taskrunner.TaskRunner
+
+func init() {
+	runner = taskrunner.NewTaskRunner()
+}
 
 func ChangePassword(c echo.Context) error {
 	oldPwd := c.FormValue("oldPwd")
@@ -229,8 +236,18 @@ func Login(c echo.Context) error {
 
 	sess.Save(c.Request(), c.Response())
 
+	pendingJobId := runner.GetCurrentJob()
+
+	client := awsclient.NewAWSClient(sess.Values["accessKey"].(string), sess.Values["secretKey"].(string), sess.Values["defaultRegion"].(string))
+
+	go runner.Start(client)
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"success": true,
+		"data": map[string]interface{}{
+			"hasPending": pendingJobId > 0,
+			"jobId":      pendingJobId,
+		},
 	})
 }
 
@@ -238,6 +255,8 @@ func Logout(c echo.Context) error {
 	sess, _ := session.Get("session", c)
 	sess.Options.MaxAge = -1
 	sess.Save(c.Request(), c.Response())
+
+	runner.Stop()
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"success": true,
@@ -249,6 +268,7 @@ func UserData(c echo.Context) error {
 
 	client := awsclient.NewAWSClient(sess.Values["accessKey"].(string), sess.Values["secretKey"].(string), sess.Values["defaultRegion"].(string))
 	regions := client.GetRegions()
+	log := taskrunner.GetTaskLog()
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"success": true,
@@ -257,6 +277,7 @@ func UserData(c echo.Context) error {
 			"secretKey":     sess.Values["secretKey"],
 			"defaultRegion": sess.Values["defaultRegion"],
 			"regions":       regions,
+			"log":           log,
 		},
 	})
 }
