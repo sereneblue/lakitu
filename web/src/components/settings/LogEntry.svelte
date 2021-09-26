@@ -35,6 +35,10 @@
 					<div class="text-danger-200">
 						<Icon icon="alert-circle" />
 					</div>
+				{:else if details.status == Status.CANCELED}
+					<div class="text-danger-200">
+						<Icon icon="slash" />
+					</div>
 				{/if}
 			</div>
 		</div>

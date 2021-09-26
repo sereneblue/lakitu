@@ -41,7 +41,8 @@ export type Response = {
 export const enum Status {
 	PENDING = 0,
 	COMPLETE = 1,
-	ERROR = 2
+	ERROR = 2,
+	CANCELED = 3,
 };
 
 export type MachineEventType = 'start' | 'stop' | 'increaseStorage' | 'changeRegion' | 'delete';
