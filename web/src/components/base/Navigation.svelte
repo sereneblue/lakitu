@@ -16,7 +16,7 @@
 	$: icon = show ? 'x' : 'cloud';
 </script>
 
-<div class="relative">
+<div class="relative z-20">
 	{#if show}
 		<div
 			transition:slide
