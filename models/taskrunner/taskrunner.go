@@ -22,6 +22,7 @@ const (
 	PENDING Status = iota
 	COMPLETE
 	ERROR
+	CANCELED
 )
 
 type TaskRunner struct {

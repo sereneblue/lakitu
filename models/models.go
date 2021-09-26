@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -11,6 +12,13 @@ import (
 
 var Engine *xorm.Engine
 var initError error
+
+const (
+	PENDING = iota
+	COMPLETE
+	ERROR
+	CANCELED
+)
 
 func init() {
 	userDir, err := os.UserConfigDir()
@@ -57,29 +65,38 @@ func init() {
 	}
 
 	// create triggers for job queue
-	Engine.Exec(`
+	Engine.Exec(fmt.Sprintf(`
 		CREATE TRIGGER IF NOT EXISTS update_job_status_success AFTER UPDATE OF status ON task
-		  WHEN new.status = 1
+		  WHEN new.status = %d
 		  BEGIN
 		    UPDATE job
-		    SET status = 1, complete = 1
-		    WHERE job.id = new.job_id
-		    AND (
-			SELECT COUNT(*)
-			FROM task
-			WHERE job_id = new.job_id
-			AND status = 0	    
-		    ) = 0;
+		       SET status = %d, 
+		       	   complete = 1
+		     WHERE job.id = new.job_id
+		           AND (
+						SELECT COUNT(*)
+						FROM task
+						WHERE job_id = new.job_id
+						AND status = %d    
+				   ) = 0;
 		  END;
 
 		CREATE TRIGGER IF NOT EXISTS update_job_status_error AFTER UPDATE OF status ON task
-		  WHEN new.status = 2
+		  WHEN new.status = %d
 		  BEGIN
 		    UPDATE job
-		    SET status = 2, complete = 1
-		    WHERE job.id = new.job_id;
+		       SET status = %d,
+		           complete = 1
+		     WHERE job.id = new.job_id;
+
+		    UPDATE task
+		       SET status = %d
+		     WHERE task.job_id = new.job_id
+		     	   AND task.status = %d
 		  END;
-	`)
+	`, 
+	COMPLETE, COMPLETE, COMPLETE, 
+	ERROR, ERROR, CANCELED, PENDING))
 }
 
 func IsInit() error {
