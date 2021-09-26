@@ -38,6 +38,12 @@ func init() {
 		return
 	}
 
+	err = Engine.Sync2(new(Machine))
+	if err != nil {
+		initError = err
+		return
+	}
+
 	err = Engine.Sync2(new(awsclient.AWSRole))
 	if err != nil {
 		initError = err
