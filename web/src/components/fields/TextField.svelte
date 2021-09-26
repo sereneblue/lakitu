@@ -1,4 +1,4 @@
-<script lang="typescript">
+<script lang="ts">
 	import feather from 'feather-icons';
 	import { createEventDispatcher } from 'svelte';
 

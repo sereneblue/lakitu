@@ -1,4 +1,4 @@
-<script lang="typescript">
+<script lang="ts">
 	import { onMount, setContext } from 'svelte';
 	import { writable } from 'svelte/store';
 

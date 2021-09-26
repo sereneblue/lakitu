@@ -1,4 +1,4 @@
-<script lang="typescript">
+<script lang="ts">
 	import { goto } from '$app/navigation';
 
 	import { Button, Icon, Modal } from '../components/base';

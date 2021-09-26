@@ -1,4 +1,4 @@
-<script lang="typescript">
+<script lang="ts">
 	import { createEventDispatcher, getContext } from 'svelte';
 
 	const dispatch = createEventDispatcher();

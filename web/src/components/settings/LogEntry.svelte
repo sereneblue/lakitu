@@ -1,4 +1,4 @@
-<script lang="typescript">
+<script lang="ts">
 	import { slide } from 'svelte/transition';
 
 	import { Button, Icon } from '../base';

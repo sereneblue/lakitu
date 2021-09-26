@@ -1,4 +1,4 @@
-<script lang="typescript">
+<script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 
 	import { Button, Modal } from '../base';

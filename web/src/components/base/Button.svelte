@@ -1,4 +1,4 @@
-<script lang="typescript">
+<script lang="ts">
 	import Icon from './Icon.svelte';
 
 	type ButtonSize = 'xs' | 'sm' | 'md' | 'lg';
