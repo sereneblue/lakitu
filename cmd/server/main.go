@@ -46,7 +46,7 @@ func main() {
 
 	jobs := e.Group("/jobs")
 	jobs.Use(middleware.RequireLogin)
-	jobs.GET("/", routes.GetCurrentJobStatus)
+	jobs.GET("", routes.GetCurrentJobStatus)
 	jobs.GET("/:id", routes.GetJobStatus)
 
 	e.Logger.Fatal(e.Start("127.0.0.1:8080"))
