@@ -92,7 +92,7 @@ func init() {
 		    UPDATE task
 		       SET status = %d
 		     WHERE task.job_id = new.job_id
-		     	   AND task.status = %d
+		     	   AND task.status = %d;
 		  END;
 	`, 
 	COMPLETE, COMPLETE, COMPLETE, 
