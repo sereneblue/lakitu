@@ -119,6 +119,21 @@
 				        aria-orientation="horizontal"
 				        aria-labelledby="options-menu">
 				        <button
+				          on:click={(e) => emit('details')}
+				          class="flex items-center w-full p-1.5 text-sm"
+				          role="menuitem">
+				          <span class="w-3 h-3 mx-1.5">
+				          	<Icon icon="zoom-in" />
+				          </span>
+				          Details
+				        </button>
+					</div>
+					<div
+				        class="flex hover:bg-nord2/10"
+				        role="menu"
+				        aria-orientation="horizontal"
+				        aria-labelledby="options-menu">
+				        <button
 				          on:click={(e) => emit('delete')}
 				          class="flex items-center w-full p-1.5 text-sm"
 				          role="menuitem">
