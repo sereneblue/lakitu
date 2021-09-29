@@ -16,7 +16,7 @@ type Machine struct {
 	Region         string
 	StreamSoftware awsclient.StreamSoftware
 	InstanceType   string
-	Size           int64
+	Size           int32
 	Deleted        bool
 }
 
@@ -26,7 +26,9 @@ type MachineDetail struct {
 	Name         string        `json:"name"`
 	Region       string        `json:"region"`
 	InstanceType string        `json:"instanceType"`
-	Size         int64         `json:"size"`
+	AmiId        string        `json:"amiId"`
+	SnapshotId   string        `json:"snapshotId"`
+	Size         int32         `json:"size"`
 }
 
 const (
@@ -47,7 +49,29 @@ func GetMachineId(uuid string) int64 {
 	return m.Id
 }
 
-func NewMachine(name string, region string, streamSw awsclient.StreamSoftware, instanceType string, size int64) Machine {
+func GetMachines() []MachineDetail {
+	var machines []Machine
+	machineDetails := []MachineDetail{}
+
+	Engine.Where("deleted = 0").Find(&machines)
+
+	for _, m := range machines {
+		machineDetails = append(machineDetails, MachineDetail{
+			Status:       MachineOffline,
+			Uuid:         m.Uuid,
+			Name:         m.Name,
+			Region:       m.Region,
+			InstanceType: m.InstanceType,
+			Size:         m.Size,
+			AmiId:        m.AmiId,
+			SnapshotId:   m.SnapshotId,
+		})
+	}
+
+	return machineDetails
+}
+
+func NewMachine(name string, region string, streamSw awsclient.StreamSoftware, instanceType string, size int32) Machine {
 	m := Machine{
 		Name:           name,
 		Uuid:           uuid.NewString(),
