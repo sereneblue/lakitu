@@ -19,7 +19,8 @@ const (
 	TaskDeleteImage
 	TaskDeleteSnapshot
 	TaskResizeVolume
-	TaskTransferZone
+	TaskTransferImage
+	TaskTransferSnapshot
 	TaskStartInstance
 	TaskStopInstance
 )
@@ -33,7 +34,8 @@ var TASK_NAME map[TaskType]string = map[TaskType]string{
 	TaskDeleteImage:         "Deleting image",
 	TaskDeleteSnapshot:      "Deleting snapshot",
 	TaskResizeVolume:        "Resizing volume",
-	TaskTransferZone:        "Transferring zone",
+	TaskTransferImage:       "Transferring image",
+	TaskTransferSnapshot:    "Transferring snapshot",
 	TaskStartInstance:       "Starting instance",
 	TaskStopInstance:        "Stopping instance",
 }
@@ -44,6 +46,7 @@ type Task struct {
 	Type      TaskType
 	ErrorInfo string `xorm:"error_info"`
 	Status    Status
+	Metadata  string
 	Created   time.Time `xorm:"created"`
 	Updated   time.Time `xorm:"updated"`
 }
@@ -58,16 +61,20 @@ type TaskLog struct {
 
 func (t *Task) HandleTask(client awsclient.AWSClient, machine models.Machine) {
 	switch t.Type {
-		case TaskCreateRole:
-			t.createRole(client)
-		case TaskCreateSecurityGroup:
-			t.createSecurityGroup(client, machine)
-		case TaskDeleteImage:
-			t.deleteImage(client, machine)
-		case TaskDeleteSnapshot:
-			t.deleteSnapshot(client, machine)
-		default:
-			break
+	case TaskCreateRole:
+		t.createRole(client)
+	case TaskCreateSecurityGroup:
+		t.createSecurityGroup(client, machine)
+	case TaskDeleteImage:
+		t.deleteImage(client, machine)
+	case TaskDeleteSnapshot:
+		t.deleteSnapshot(client, machine)
+	case TaskTransferImage:
+		t.transferImage(client, machine)
+	case TaskTransferSnapshot:
+		t.transferSnapshot(client, machine)
+	default:
+		break
 	}
 }
 
@@ -144,7 +151,7 @@ func (t *Task) createRole(client awsclient.AWSClient) {
 				t.updateStatus(COMPLETE, "")
 				return
 			}
-		} else{
+		} else {
 			t.updateStatus(COMPLETE, "")
 			return
 		}
@@ -174,7 +181,7 @@ func (t *Task) createSecurityGroup(client awsclient.AWSClient, m models.Machine)
 				t.updateStatus(COMPLETE, "")
 				return
 			}
-		} else{
+		} else {
 			t.updateStatus(COMPLETE, "")
 			return
 		}
@@ -184,7 +191,7 @@ func (t *Task) createSecurityGroup(client awsclient.AWSClient, m models.Machine)
 }
 
 func (t *Task) deleteImage(client awsclient.AWSClient, m models.Machine) {
-	ok, err := client.DeleteImage(m.AmiId)
+	ok, err := client.DeleteImage(m.AmiId, m.Region)
 
 	if ok {
 		t.updateStatus(COMPLETE, "")
@@ -194,7 +201,7 @@ func (t *Task) deleteImage(client awsclient.AWSClient, m models.Machine) {
 }
 
 func (t *Task) deleteSnapshot(client awsclient.AWSClient, m models.Machine) {
-	ok, err := client.DeleteSnapshot(m.SnapshotId)
+	ok, err := client.DeleteSnapshot(m.SnapshotId, m.Region)
 
 	if ok {
 		t.updateStatus(COMPLETE, "")
@@ -206,4 +213,58 @@ func (t *Task) deleteSnapshot(client awsclient.AWSClient, m models.Machine) {
 	models.Engine.ID(m.Id).Cols("deleted").Update(models.Machine{
 		Deleted: true,
 	})
+}
+
+func (t *Task) transferImage(client awsclient.AWSClient, m models.Machine) {
+	var j Job
+
+	models.Engine.ID(t.JobId).Get(&j)
+
+	imageId, err := client.CopyImage(m.AmiId, m.Uuid, m.Region, j.Metadata)
+
+	if imageId != "" {
+		// update task metadata with new image id
+		models.Engine.ID(t.Id).Cols("metadata").Update(Task{
+			Metadata: imageId,
+		})
+
+		t.updateStatus(COMPLETE, "")
+	} else {
+		t.updateStatus(ERROR, err.Error())
+	}
+}
+
+func (t *Task) transferSnapshot(client awsclient.AWSClient, m models.Machine) {
+	var j Job
+	var transferImageTask Task
+
+	models.Engine.ID(t.JobId).Get(&j)
+	models.Engine.Where("task.job_id = ? AND task.type = ?", j.Id, TaskTransferImage).Get(&transferImageTask)
+
+	snapshotId, err := client.CopySnapshot(m.SnapshotId, m.Region, j.Metadata)
+
+	if snapshotId != "" {
+		// update machine id
+		models.Engine.ID(m.Id).Cols("ami_id,snapshot_id,region").Update(models.Machine{
+			AmiId:      transferImageTask.Metadata,
+			SnapshotId: snapshotId,
+			Region:     j.Metadata,
+		})
+
+		ok, err := client.DeleteImage(m.AmiId, m.Region)
+
+		if ok {
+			ok, err = client.DeleteSnapshot(m.SnapshotId, m.Region)
+
+			if ok {
+				t.updateStatus(COMPLETE, "")
+			} else {
+				t.updateStatus(ERROR, err.Error())
+			}
+		} else {
+			t.updateStatus(ERROR, err.Error())
+		}
+	} else {
+		t.updateStatus(ERROR, err.Error())
+	}
 }

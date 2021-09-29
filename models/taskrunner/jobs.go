@@ -65,7 +65,8 @@ func (j *Job) GetTasks() []Task {
 		}
 	case JobTransferMachine:
 		return []Task{
-			NewTask(j.Id, TaskTransferZone),
+			NewTask(j.Id, TaskTransferImage),
+			NewTask(j.Id, TaskTransferSnapshot),
 		}
 	case JobResizeMachine:
 		return []Task{

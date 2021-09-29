@@ -94,9 +94,9 @@ func init() {
 		     WHERE task.job_id = new.job_id
 		     	   AND task.status = %d;
 		  END;
-	`, 
-	COMPLETE, COMPLETE, COMPLETE, 
-	ERROR, ERROR, CANCELED, PENDING))
+	`,
+		COMPLETE, COMPLETE, COMPLETE,
+		ERROR, ERROR, CANCELED, PENDING))
 }
 
 func IsInit() error {
