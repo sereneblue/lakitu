@@ -7,6 +7,8 @@
 
 	export let data: MachineData;
 
+	let state;
+	
 	const dispatch = createEventDispatcher();
 	
 	const emit = (event: MachineEvent): void => {
@@ -16,7 +18,7 @@
 		});
 	}
 
-	let state = {...data, menuOpen: false };
+	$: state = {...data, menuOpen: false };
 </script>
 
 <div class="flex items-center relative rounded shadow hover:shadow-md border border-nord2 hover:border-accent-200">
