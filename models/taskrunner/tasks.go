@@ -69,6 +69,8 @@ func (t *Task) HandleTask(client awsclient.AWSClient, machine models.Machine) {
 		t.deleteImage(client, machine)
 	case TaskDeleteSnapshot:
 		t.deleteSnapshot(client, machine)
+	case TaskResizeVolume:
+		t.resizeVolume(client, machine)
 	case TaskTransferImage:
 		t.transferImage(client, machine)
 	case TaskTransferSnapshot:
@@ -213,6 +215,26 @@ func (t *Task) deleteSnapshot(client awsclient.AWSClient, m models.Machine) {
 	models.Engine.ID(m.Id).Cols("deleted").Update(models.Machine{
 		Deleted: true,
 	})
+}
+
+func (t *Task) resizeVolume(client awsclient.AWSClient, m models.Machine) {
+	var j Job
+
+	models.Engine.ID(t.JobId).Get(&j)
+
+	newSize, _ := strconv.ParseInt(j.Metadata, 10, 32)
+	newSnapshotId, err := client.ResizeSnapshot(m.SnapshotId, int32(newSize), m.Region)
+
+	if err == nil {
+		t.updateStatus(COMPLETE, "")
+
+		models.Engine.ID(m.Id).Cols("snapshot_id,size").Update(models.Machine{
+			SnapshotId: newSnapshotId,
+			Size:       int32(newSize),
+		})
+	} else {
+		t.updateStatus(ERROR, err.Error())
+	}
 }
 
 func (t *Task) transferImage(client awsclient.AWSClient, m models.Machine) {
