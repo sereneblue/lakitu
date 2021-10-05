@@ -1,4 +1,4 @@
-import { Notification } from '../components/base/';
+import { JobProgress, Notification } from '../components/base';
 import type { NotificationType } from '../service/types';
 
 export function notify(
@@ -15,5 +15,20 @@ export function notify(
 			type: notifyType,
 			duration
 		}
+	});
+}
+
+export function showJobProgress(
+	target: HTMLElement, 
+	jobId: number, 
+	done: Function
+) {
+	new JobProgress({
+		target,
+		hydrate: true,
+		props: {
+			jobId,
+			done: done || (() => {})
+		},
 	});
 }
