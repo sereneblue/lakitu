@@ -49,5 +49,15 @@ func main() {
 	jobs.GET("", routes.GetCurrentJobStatus)
 	jobs.GET("/:id", routes.GetJobStatus)
 
+	machine := e.Group("/machine")
+	machine.Use(middleware.RequireLogin)
+	machine.GET("/list", routes.ListMachines)
+	machine.POST("/create", routes.CreateMachine)
+	machine.POST("/delete", routes.DeleteMachine)
+	machine.POST("/start", routes.StartMachine)
+	machine.POST("/stop", routes.StopMachine)
+	machine.POST("/resize", routes.ResizeMachine)
+	machine.POST("/transfer", routes.TransferMachine)
+
 	e.Logger.Fatal(e.Start("127.0.0.1:8080"))
 }
