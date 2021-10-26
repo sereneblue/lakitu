@@ -200,6 +200,50 @@ func (c *AWSClient) GetGPUInstances(region string) []AWSGPUInstance {
 	return instances
 }
 
+func (c *AWSClient) GetMachineData(imageId string, snapshotId string, region string) (string, string, error) {
+	client := ec2.NewFromConfig(c.Config)
+
+	res, err := client.DescribeInstances(context.TODO(), &ec2.DescribeInstancesInput{
+		Filters: []types.Filter{
+			types.Filter{
+				Name:   aws.String("image-id"),
+				Values: []string{imageId},
+			},
+		},
+	})
+
+	if err != nil {
+		return "", "", err
+	}
+
+	if len(res.Reservations) == 0 {
+		return "", "", errors.New("No reservations available for AMI: " + imageId)
+	}
+
+	instanceId := *res.Reservations[0].Instances[0].InstanceId
+
+	volumeRes, err := client.DescribeVolumes(context.TODO(), &ec2.DescribeVolumesInput{
+		Filters: []types.Filter{
+			types.Filter{
+				Name:   aws.String("snapshot-id"),
+				Values: []string{snapshotId},
+			},
+		},
+	})
+
+	if err != nil {
+		return "", "", err
+	}
+
+	if len(volumeRes.Volumes) == 0 {
+		return "", "", errors.New("No volumes attached to this instance: " + instanceId)
+	}
+
+	volumeId := *volumeRes.Volumes[0].VolumeId
+
+	return instanceId, volumeId, err
+}
+
 func (c *AWSClient) GetPrices(region string) AWSPrices {
 	prices := AWSPrices{}
 	re := regexp.MustCompile(`"pricePerUnit":{"USD":"(.*?)"}`)

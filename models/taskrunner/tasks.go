@@ -1,6 +1,7 @@
 package taskrunner
 
 import (
+	"encoding/json"
 	"strconv"
 	"time"
 
@@ -21,6 +22,7 @@ const (
 	TaskResizeVolume
 	TaskTransferImage
 	TaskTransferSnapshot
+	TaskSaveInstance
 	TaskStartInstance
 	TaskStopInstance
 )
@@ -36,6 +38,7 @@ var TASK_NAME map[TaskType]string = map[TaskType]string{
 	TaskResizeVolume:        "Resizing volume",
 	TaskTransferImage:       "Transferring image",
 	TaskTransferSnapshot:    "Transferring snapshot",
+	TaskSaveInstance:		 "Saving instance",
 	TaskStartInstance:       "Starting instance",
 	TaskStopInstance:        "Stopping instance",
 }
@@ -59,6 +62,13 @@ type TaskLog struct {
 	Status    Status `json:"status"`
 }
 
+type TaskSaveInstanceMetadata struct {
+	InstanceId string
+	VolumeId string
+	NewAmiId string
+	NewSnapshotId string
+}
+
 func (t *Task) HandleTask(client awsclient.AWSClient, machine models.Machine) {
 	switch t.Type {
 	case TaskCreateRole:
@@ -71,6 +81,10 @@ func (t *Task) HandleTask(client awsclient.AWSClient, machine models.Machine) {
 		t.deleteSnapshot(client, machine)
 	case TaskResizeVolume:
 		t.resizeVolume(client, machine)
+	case TaskSaveInstance:
+		t.saveMachine(client, machine)
+	case TaskStopInstance:
+		t.stopMachine(client, machine)
 	case TaskTransferImage:
 		t.transferImage(client, machine)
 	case TaskTransferSnapshot:
@@ -235,6 +249,90 @@ func (t *Task) resizeVolume(client awsclient.AWSClient, m models.Machine) {
 	} else {
 		t.updateStatus(ERROR, err.Error())
 	}
+}
+
+func (t *Task) saveMachine(client awsclient.AWSClient, m models.Machine) {
+	var j Job
+
+	models.Engine.ID(t.JobId).Get(&j)
+
+	// get current instance
+	instanceId, volumeId, err := client.GetMachineData(m.AmiId, m.SnapshotId, m.Region)
+	if err != nil {
+		t.updateStatus(ERROR, err.Error())
+		return
+	}
+
+	// create ami
+	newAmiId, err := client.CreateImage(instanceId, m.Region)
+	if err != nil {
+		t.updateStatus(ERROR, err.Error())
+		return
+	}
+
+	// create snapshot
+	newSnapshotId, err := client.CreateSnapshot(volumeId, m.Region)
+	if err != nil {
+		t.updateStatus(ERROR, err.Error())
+		return
+	}
+
+	jsonMetadata, _ := json.Marshal(TaskSaveInstanceMetadata{
+		InstanceId: instanceId,
+		VolumeId: volumeId,
+		NewAmiId: newAmiId,
+		NewSnapshotId: newSnapshotId, 
+	})
+
+	models.Engine.ID(j.Id).Cols("metadata").Update(Job{
+		Metadata: string(jsonMetadata),
+	})
+}
+
+func (t *Task) stopMachine(client awsclient.AWSClient, m models.Machine) {
+	var j Job
+	var metadata TaskSaveInstanceMetadata
+
+	models.Engine.ID(t.JobId).Get(&j)
+
+	err := json.Unmarshal([]byte(j.Metadata), &metadata)
+	if err != nil {
+		t.updateStatus(ERROR, err.Error())
+		return
+	}
+
+	// terminate instance
+	err = client.TerminateInstance(metadata.InstanceId, m.Region)
+	if err != nil {
+		t.updateStatus(ERROR, err.Error())
+		return
+	}
+
+	// delete volume
+	_, err = client.DeleteVolume(metadata.VolumeId, m.Region)
+	if err != nil {
+		t.updateStatus(ERROR, err.Error())
+		return
+	}
+	
+	// delete older snapshot and ami
+	_, err = client.DeleteImage(m.AmiId, m.Region)
+	if err != nil {
+		t.updateStatus(ERROR, err.Error())
+		return
+	}
+
+	_, err = client.DeleteSnapshot(m.SnapshotId, m.Region)
+	if err != nil {
+		t.updateStatus(ERROR, err.Error())
+		return
+	}
+
+	t.updateStatus(COMPLETE, "")
+	models.Engine.ID(m.Id).Cols("ami_id,snapshot_id").Update(models.Machine{
+		AmiId:      metadata.NewAmiId,
+		SnapshotId: metadata.NewSnapshotId,
+	})
 }
 
 func (t *Task) transferImage(client awsclient.AWSClient, m models.Machine) {

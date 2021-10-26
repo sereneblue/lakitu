@@ -61,6 +61,7 @@ func (j *Job) GetTasks() []Task {
 		}
 	case JobStopMachine:
 		return []Task{
+			NewTask(j.Id, TaskSaveInstance),
 			NewTask(j.Id, TaskStopInstance),
 		}
 	case JobTransferMachine:

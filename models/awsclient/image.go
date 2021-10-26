@@ -11,6 +11,46 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 )
 
+func (c *AWSClient) CreateImage(instanceId string, region string) (string, error) {
+	config := c.Config
+	config.Region = region
+
+	client := ec2.NewFromConfig(config)
+
+	res, err := client.CreateImage(context.TODO(), &ec2.CreateImageInput{
+		InstanceId:  aws.String(instanceId),
+		Name:        aws.String("New image"),
+		Description: aws.String(""),
+	})
+
+	if err == nil {
+		// wait for image to be available
+		for {
+			imageState, err := c.GetImageState(*res.ImageId, region)
+
+			if err != nil {
+				_, deleteErr := c.DeleteImage(*res.ImageId, region)
+
+				if deleteErr != nil {
+					return "", deleteErr
+				}
+
+				return "", err
+			}
+
+			if imageState == types.ImageStateAvailable {
+				return *res.ImageId, nil
+			} else if imageState == types.ImageStatePending {
+				time.Sleep(30 * time.Second)
+			} else {
+				return "", errors.New("Invalid state for image: " + *res.ImageId)
+			}
+		}
+	}
+
+	return "", err
+}
+
 func (c *AWSClient) CopyImage(imageId string, machineUuid string, sourceRegion string, destRegion string) (string, error) {
 	config := c.Config
 	config.Region = destRegion
