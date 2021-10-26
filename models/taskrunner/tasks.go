@@ -38,7 +38,7 @@ var TASK_NAME map[TaskType]string = map[TaskType]string{
 	TaskResizeVolume:        "Resizing volume",
 	TaskTransferImage:       "Transferring image",
 	TaskTransferSnapshot:    "Transferring snapshot",
-	TaskSaveInstance:		 "Saving instance",
+	TaskSaveInstance:        "Saving instance",
 	TaskStartInstance:       "Starting instance",
 	TaskStopInstance:        "Stopping instance",
 }
@@ -63,9 +63,9 @@ type TaskLog struct {
 }
 
 type TaskSaveInstanceMetadata struct {
-	InstanceId string
-	VolumeId string
-	NewAmiId string
+	InstanceId    string
+	VolumeId      string
+	NewAmiId      string
 	NewSnapshotId string
 }
 
@@ -207,9 +207,9 @@ func (t *Task) createSecurityGroup(client awsclient.AWSClient, m models.Machine)
 }
 
 func (t *Task) deleteImage(client awsclient.AWSClient, m models.Machine) {
-	ok, err := client.DeleteImage(m.AmiId, m.Region)
+	err := client.DeleteImage(m.AmiId, m.Region)
 
-	if ok {
+	if err == nil {
 		t.updateStatus(COMPLETE, "")
 	} else {
 		t.updateStatus(ERROR, err.Error())
@@ -217,9 +217,9 @@ func (t *Task) deleteImage(client awsclient.AWSClient, m models.Machine) {
 }
 
 func (t *Task) deleteSnapshot(client awsclient.AWSClient, m models.Machine) {
-	ok, err := client.DeleteSnapshot(m.SnapshotId, m.Region)
+	err := client.DeleteSnapshot(m.SnapshotId, m.Region)
 
-	if ok {
+	if err == nil {
 		t.updateStatus(COMPLETE, "")
 	} else {
 		t.updateStatus(ERROR, err.Error())
@@ -278,10 +278,10 @@ func (t *Task) saveMachine(client awsclient.AWSClient, m models.Machine) {
 	}
 
 	jsonMetadata, _ := json.Marshal(TaskSaveInstanceMetadata{
-		InstanceId: instanceId,
-		VolumeId: volumeId,
-		NewAmiId: newAmiId,
-		NewSnapshotId: newSnapshotId, 
+		InstanceId:    instanceId,
+		VolumeId:      volumeId,
+		NewAmiId:      newAmiId,
+		NewSnapshotId: newSnapshotId,
 	})
 
 	models.Engine.ID(j.Id).Cols("metadata").Update(Job{
@@ -314,15 +314,15 @@ func (t *Task) stopMachine(client awsclient.AWSClient, m models.Machine) {
 		t.updateStatus(ERROR, err.Error())
 		return
 	}
-	
+
 	// delete older snapshot and ami
-	_, err = client.DeleteImage(m.AmiId, m.Region)
+	err = client.DeleteImage(m.AmiId, m.Region)
 	if err != nil {
 		t.updateStatus(ERROR, err.Error())
 		return
 	}
 
-	_, err = client.DeleteSnapshot(m.SnapshotId, m.Region)
+	err = client.DeleteSnapshot(m.SnapshotId, m.Region)
 	if err != nil {
 		t.updateStatus(ERROR, err.Error())
 		return
@@ -371,12 +371,12 @@ func (t *Task) transferSnapshot(client awsclient.AWSClient, m models.Machine) {
 			Region:     j.Metadata,
 		})
 
-		ok, err := client.DeleteImage(m.AmiId, m.Region)
+		err := client.DeleteImage(m.AmiId, m.Region)
 
-		if ok {
-			ok, err = client.DeleteSnapshot(m.SnapshotId, m.Region)
+		if err == nil {
+			err = client.DeleteSnapshot(m.SnapshotId, m.Region)
 
-			if ok {
+			if err == nil {
 				t.updateStatus(COMPLETE, "")
 			} else {
 				t.updateStatus(ERROR, err.Error())

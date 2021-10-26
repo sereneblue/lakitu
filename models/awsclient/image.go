@@ -29,7 +29,7 @@ func (c *AWSClient) CreateImage(instanceId string, region string) (string, error
 			imageState, err := c.GetImageState(*res.ImageId, region)
 
 			if err != nil {
-				_, deleteErr := c.DeleteImage(*res.ImageId, region)
+				deleteErr := c.DeleteImage(*res.ImageId, region)
 
 				if deleteErr != nil {
 					return "", deleteErr
@@ -69,7 +69,7 @@ func (c *AWSClient) CopyImage(imageId string, machineUuid string, sourceRegion s
 			imageState, err := c.GetImageState(*res.ImageId, destRegion)
 
 			if err != nil {
-				_, deleteErr := c.DeleteImage(*res.ImageId, destRegion)
+				deleteErr := c.DeleteImage(*res.ImageId, destRegion)
 
 				if deleteErr != nil {
 					return "", deleteErr
@@ -91,7 +91,7 @@ func (c *AWSClient) CopyImage(imageId string, machineUuid string, sourceRegion s
 	return "", err
 }
 
-func (c *AWSClient) DeleteImage(imageId string, region string) (bool, error) {
+func (c *AWSClient) DeleteImage(imageId string, region string) error {
 	config := c.Config
 	config.Region = region
 
@@ -105,7 +105,7 @@ func (c *AWSClient) DeleteImage(imageId string, region string) (bool, error) {
 	if err != nil {
 		if !(strings.Contains(err.Error(), "InvalidAMIID.NotFound") ||
 			strings.Contains(err.Error(), "InvalidAMIID.Unavailable")) {
-			return false, err
+			return err
 		}
 	}
 
@@ -120,18 +120,18 @@ func (c *AWSClient) DeleteImage(imageId string, region string) (bool, error) {
 	})
 
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	for _, snapshot := range res.Snapshots {
-		_, err := c.DeleteSnapshot(*snapshot.SnapshotId, region)
+		err := c.DeleteSnapshot(*snapshot.SnapshotId, region)
 
 		if err != nil {
-			return false, err
+			return err
 		}
 	}
 
-	return true, nil
+	return nil
 }
 
 func (c *AWSClient) GetImageState(imageId string, region string) (types.ImageState, error) {

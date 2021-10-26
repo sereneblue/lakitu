@@ -16,7 +16,7 @@ func (c *AWSClient) checkSnapshotState(snapshotId string, region string) (string
 		snapshotState, err := c.GetSnapshotState(snapshotId, region)
 
 		if err != nil {
-			_, deleteErr := c.DeleteSnapshot(snapshotId, region)
+			deleteErr := c.DeleteSnapshot(snapshotId, region)
 
 			if deleteErr != nil {
 				return "", deleteErr
@@ -132,7 +132,7 @@ func (c *AWSClient) CopySnapshot(snapshotId string, sourceRegion string, destReg
 	return "", err
 }
 
-func (c *AWSClient) DeleteSnapshot(snapshotId string, region string) (bool, error) {
+func (c *AWSClient) DeleteSnapshot(snapshotId string, region string) error {
 	config := c.Config
 	config.Region = region
 
@@ -143,17 +143,17 @@ func (c *AWSClient) DeleteSnapshot(snapshotId string, region string) (bool, erro
 	})
 
 	if res != nil {
-		return true, nil
+		return nil
 	}
 
 	// deleting a non-existent snapshot should return true
 	if err != nil {
 		if strings.Contains(err.Error(), "InvalidSnapshot.NotFound") {
-			return true, nil
+			return nil
 		}
 	}
 
-	return false, err
+	return err
 }
 
 func (c *AWSClient) DeleteVolume(volumeId string, region string) (bool, error) {
@@ -322,7 +322,7 @@ func (c *AWSClient) ResizeSnapshot(snapshotId string, newSize int32, region stri
 		return "", err
 	}
 
-	_, err = c.DeleteSnapshot(snapshotId, region)
+	err = c.DeleteSnapshot(snapshotId, region)
 	if err != nil {
 		return "", err
 	}
