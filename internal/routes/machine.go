@@ -89,7 +89,7 @@ func ListMachines(c echo.Context) error {
 	machines := models.GetMachines()
 
 	client := awsclient.NewAWSClient(sess.Values["accessKey"].(string), sess.Values["secretKey"].(string), sess.Values["defaultRegion"].(string))
-	instances := client.GetImagesAndIntances()
+	instances := client.GetImagesAndInstances()
 
 	for _, i := range instances {
 		for _, m := range machines {
