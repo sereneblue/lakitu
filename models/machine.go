@@ -32,9 +32,10 @@ type MachineDetail struct {
 }
 
 const (
-	MachineOnline      MachineStatus = "online"
-	MachineOffline     MachineStatus = "offline"
-	MachineUnavailable MachineStatus = "unavailable"
+	MachineStatusOnline      MachineStatus = "online"
+	MachineStatusOffline     MachineStatus = "offline"
+	MachineStatusUnavailable MachineStatus = "unavailable"
+	MachineStatusUnknown MachineStatus = "unknown"
 )
 
 func GetMachineId(uuid string) int64 {
@@ -57,7 +58,7 @@ func GetMachines() []MachineDetail {
 
 	for _, m := range machines {
 		machineDetails = append(machineDetails, MachineDetail{
-			Status:       MachineOffline,
+			Status:       MachineStatusUnknown,
 			Uuid:         m.Uuid,
 			Name:         m.Name,
 			Region:       m.Region,
