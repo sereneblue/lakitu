@@ -65,7 +65,6 @@
 				w-full
 				p-2
 				leading-tight
-				focus-visible:bg-white
 				focus:outline-none focus:border-accent-200"
 			class:w-full={full}
 			class:pl-9={icon}
