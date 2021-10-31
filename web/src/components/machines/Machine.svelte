@@ -38,6 +38,8 @@
 				<div class="text-sm bg-green-400 px-2 rounded">Online</div>
 			{:else if state.status === 'unavailable'}
 				<div class="text-sm bg-danger-100 px-2 rounded">Unavailable</div>
+			{:else if state.status === 'unknown'}
+				<div class="text-sm bg-danger-100 px-2 rounded">Unknown</div>
 			{/if}
 		</div>
 		<div class="flex items-center text-sm opacity-50">

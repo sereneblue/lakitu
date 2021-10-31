@@ -46,7 +46,7 @@ export const enum Status {
 };
 
 export type MachineEventType = 'start' | 'stop' | 'increaseStorage' | 'changeRegion' | 'delete';
-export type MachineStatus = 'offline' | 'online' | 'unavailable';
+export type MachineStatus = 'offline' | 'online' | 'unavailable' | 'unknown';
 export type ModalType = 'warning' | 'info' | 'danger' | 'success' | 'default';
 export type NotificationType = 'warning' | 'info' | 'danger' | 'success';
 
