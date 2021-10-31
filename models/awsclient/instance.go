@@ -44,25 +44,6 @@ func (c *AWSClient) CreateSpotInstance(imageId string, createMachine bool) (bool
 	return true, nil
 }
 
-func (c *AWSClient) GetImagesAndInstances() []string {
-	client := ec2.NewFromConfig(c.Config)
-
-	_, err := client.DescribeImages(context.TODO(), &ec2.DescribeImagesInput{
-		Filters: []types.Filter{
-			types.Filter{
-				Name:   aws.String("tag:" + AWS_TAG_KEY),
-				Values: []string{""},
-			},
-		},
-		Owners: []string{"self"},
-	})
-
-	if err != nil {
-	}
-
-	return []string{}
-}
-
 func (c *AWSClient) GetInstanceState(instanceId string, region string) (types.InstanceStateName, error) {
 	config := c.Config
 	config.Region = region

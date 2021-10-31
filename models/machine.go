@@ -35,7 +35,7 @@ const (
 	MachineStatusOnline      MachineStatus = "online"
 	MachineStatusOffline     MachineStatus = "offline"
 	MachineStatusUnavailable MachineStatus = "unavailable"
-	MachineStatusUnknown MachineStatus = "unknown"
+	MachineStatusUnknown     MachineStatus = "unknown"
 )
 
 func GetMachineId(uuid string) int64 {

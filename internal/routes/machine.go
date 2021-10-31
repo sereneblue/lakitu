@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -88,12 +87,42 @@ func ListMachines(c echo.Context) error {
 
 	machines := models.GetMachines()
 
-	client := awsclient.NewAWSClient(sess.Values["accessKey"].(string), sess.Values["secretKey"].(string), sess.Values["defaultRegion"].(string))
-	instances := client.GetImagesAndInstances()
+	// get all regions
+	regionList := []string{}
+	regionExists := make(map[string]bool)
+	for _, m := range machines {
+		regionExists[m.Region] = true
+	}
 
-	for _, i := range instances {
-		for _, m := range machines {
-			fmt.Println(i, m)
+	for region, _ := range regionExists {
+		regionList = append(regionList, region)
+	}
+
+	client := awsclient.NewAWSClient(sess.Values["accessKey"].(string), sess.Values["secretKey"].(string), sess.Values["defaultRegion"].(string))
+	availability := client.GetAvailability(regionList)
+
+	if availability != nil {
+		for i := range machines {
+			machines[i].Status = models.MachineStatusUnavailable
+
+			_, exists := availability["snapshots"][machines[i].SnapshotId]
+			if !exists {
+				continue
+			}
+
+			_, exists = availability["images"][machines[i].AmiId]
+			if !exists {
+				continue
+			}
+
+			machines[i].Status = models.MachineStatusOffline
+
+			_, exists = availability["instances"][machines[i].AmiId]
+			if !exists {
+				continue
+			}
+
+			machines[i].Status = models.MachineStatusOnline
 		}
 	}
 

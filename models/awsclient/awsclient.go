@@ -105,6 +105,75 @@ func (c *AWSClient) IsValidAWSCredentials() (bool, error) {
 	return true, nil
 }
 
+func (c *AWSClient) GetAvailability(regionList []string) map[string]map[string]bool {
+	availability := make(map[string]map[string]bool)
+	availability["instances"] = make(map[string]bool)
+	availability["images"] = make(map[string]bool)
+	availability["snapshots"] = make(map[string]bool)
+
+	for _, region := range regionList {
+		c.Config.Region = region
+
+		client := ec2.NewFromConfig(c.Config)
+
+		instanceRes, err := client.DescribeInstances(context.TODO(), &ec2.DescribeInstancesInput{
+			Filters: []types.Filter{
+				types.Filter{
+					Name:   aws.String("tag-key"),
+					Values: []string{AWS_TAG_KEY},
+				},
+			},
+		})
+
+		if err != nil {
+			return nil
+		}
+
+		for _, reservation := range instanceRes.Reservations {
+			for _, instance := range reservation.Instances {
+				availability["instances"][*instance.ImageId] = true
+			}
+		}
+
+		imageRes, err := client.DescribeImages(context.TODO(), &ec2.DescribeImagesInput{
+			Filters: []types.Filter{
+				types.Filter{
+					Name:   aws.String("tag-key"),
+					Values: []string{AWS_TAG_KEY},
+				},
+			},
+			Owners: []string{"self"},
+		})
+
+		if err != nil {
+			return nil
+		}
+
+		for _, image := range imageRes.Images {
+			availability["images"][*image.ImageId] = true
+		}
+
+		snapshotRes, err := client.DescribeSnapshots(context.TODO(), &ec2.DescribeSnapshotsInput{
+			Filters: []types.Filter{
+				types.Filter{
+					Name:   aws.String("tag-key"),
+					Values: []string{AWS_TAG_KEY},
+				},
+			},
+		})
+
+		if err != nil {
+			return nil
+		}
+
+		for _, snapshot := range snapshotRes.Snapshots {
+			availability["snapshots"][*snapshot.SnapshotId] = true
+		}
+	}
+
+	return availability
+}
+
 func (c *AWSClient) GetWindowsAMIId() (string, error) {
 	client := ec2.NewFromConfig(c.Config)
 
