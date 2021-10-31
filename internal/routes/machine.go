@@ -94,7 +94,7 @@ func ListMachines(c echo.Context) error {
 		regionExists[m.Region] = true
 	}
 
-	for region, _ := range regionExists {
+	for region := range regionExists {
 		regionList = append(regionList, region)
 	}
 
