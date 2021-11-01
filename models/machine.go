@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/google/uuid"
+	"github.com/sereneblue/lakitu/internal/util"
 	"github.com/sereneblue/lakitu/models/awsclient"
 )
 
@@ -14,6 +15,7 @@ type Machine struct {
 	AmiId          string
 	SnapshotId     string
 	Region         string
+	AdminPassword  string
 	StreamSoftware awsclient.StreamSoftware
 	InstanceType   string
 	Size           int32
@@ -73,10 +75,14 @@ func GetMachines() []MachineDetail {
 }
 
 func NewMachine(name string, region string, streamSw awsclient.StreamSoftware, instanceType string, size int32) Machine {
+	// shouldn't fail, but who knows..
+	pwd, _ := util.GeneratePassword()
+
 	m := Machine{
 		Name:           name,
 		Uuid:           uuid.NewString(),
 		Region:         region,
+		AdminPassword:  pwd,
 		StreamSoftware: streamSw,
 		InstanceType:   instanceType,
 		Size:           size,
