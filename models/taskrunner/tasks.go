@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"github.com/sereneblue/lakitu/models"
 	"github.com/sereneblue/lakitu/models/awsclient"
 )
@@ -19,6 +20,7 @@ const (
 	TaskCreateInstance
 	TaskDeleteImage
 	TaskDeleteSnapshot
+	TaskRequestSpotInstance
 	TaskResizeVolume
 	TaskTransferImage
 	TaskTransferSnapshot
@@ -38,6 +40,7 @@ var TASK_NAME map[TaskType]string = map[TaskType]string{
 	TaskResizeVolume:        "Resizing volume",
 	TaskTransferImage:       "Transferring image",
 	TaskTransferSnapshot:    "Transferring snapshot",
+	TaskRequestSpotInstance: "Requesting spot instance",
 	TaskSaveInstance:        "Saving instance",
 	TaskStartInstance:       "Starting instance",
 	TaskStopInstance:        "Stopping instance",
@@ -83,6 +86,10 @@ func (t *Task) HandleTask(client awsclient.AWSClient, machine models.Machine) {
 		t.resizeVolume(client, machine)
 	case TaskSaveInstance:
 		t.saveMachine(client, machine)
+	case TaskRequestSpotInstance:
+		t.requestSpotInstance(client, machine)
+	case TaskStartInstance:
+		t.startMachine(client, machine)
 	case TaskStopInstance:
 		t.stopMachine(client, machine)
 	case TaskTransferImage:
@@ -251,6 +258,34 @@ func (t *Task) resizeVolume(client awsclient.AWSClient, m models.Machine) {
 	}
 }
 
+func (t *Task) requestSpotInstance(client awsclient.AWSClient, m models.Machine) {
+	var j Job
+
+	models.Engine.ID(t.JobId).Get(&j)
+
+	var instanceType types.InstanceType
+
+	securityGroupId := models.GetSecurityGroupId(m.StreamSoftware)
+
+	if m.InstanceType == string(types.InstanceTypeG3sXlarge) {
+		instanceType = types.InstanceTypeG3sXlarge
+	} else {
+		instanceType = types.InstanceTypeG4dnXlarge
+	}
+
+	instanceId, err := client.StartInstance(m.AmiId, m.SnapshotId, instanceType, securityGroupId, m.Region, m.AdminPassword)
+
+	if err != nil {
+		t.updateStatus(ERROR, err.Error())
+		return
+	}
+
+	models.Engine.ID(j.Id).Cols("metadata").Update(Job{
+		Metadata: instanceId,
+	})	
+	t.updateStatus(COMPLETE, "")
+}
+
 func (t *Task) saveMachine(client awsclient.AWSClient, m models.Machine) {
 	var j Job
 
@@ -287,6 +322,33 @@ func (t *Task) saveMachine(client awsclient.AWSClient, m models.Machine) {
 	models.Engine.ID(j.Id).Cols("metadata").Update(Job{
 		Metadata: string(jsonMetadata),
 	})
+	t.updateStatus(COMPLETE, "")
+}
+
+func (t *Task) startMachine(client awsclient.AWSClient, m models.Machine) {
+	var j Job
+
+	models.Engine.ID(t.JobId).Get(&j)
+
+	// wait for machine to be ready
+	for {
+		instanceState, err := client.GetInstanceState(j.Metadata, m.Region)
+		if err != nil {
+			t.updateStatus(ERROR, err.Error())
+			return
+		}
+
+		if instanceState == types.InstanceStateNameRunning {
+			t.updateStatus(COMPLETE, "")
+			return
+		} else if instanceState == types.InstanceStateNamePending {
+			time.Sleep(30 * time.Second)
+		} else {
+			t.updateStatus(ERROR, "Invalid state for instance: "+j.Metadata)
+			return
+		}
+	}
+
 }
 
 func (t *Task) stopMachine(client awsclient.AWSClient, m models.Machine) {

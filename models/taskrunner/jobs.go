@@ -57,6 +57,7 @@ func (j *Job) GetTasks() []Task {
 		}
 	case JobStartMachine:
 		return []Task{
+			NewTask(j.Id, TaskRequestSpotInstance),
 			NewTask(j.Id, TaskStartInstance),
 		}
 	case JobStopMachine:

@@ -2,7 +2,9 @@ package awsclient
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -68,6 +70,91 @@ func (c *AWSClient) GetInstanceState(instanceId string, region string) (types.In
 	}
 
 	return "", err
+}
+
+func (c *AWSClient) GetSpotState(spotRequestId string, region string) (types.SpotInstanceState, *string, error) {
+	config := c.Config
+	config.Region = region
+
+	client := ec2.NewFromConfig(config)
+
+	res, err := client.DescribeSpotInstanceRequests(context.TODO(), &ec2.DescribeSpotInstanceRequestsInput{
+		SpotInstanceRequestIds: []string{spotRequestId},
+	})
+
+	if err == nil {
+		if len(res.SpotInstanceRequests) > 0 {
+			return res.SpotInstanceRequests[0].State, res.SpotInstanceRequests[0].InstanceId, nil
+		}
+
+		return "", nil, errors.New("Could not find spot request: " + spotRequestId)
+	}
+
+	return "", nil, err
+}
+
+func (c *AWSClient) StartInstance(imageId string, snapshotId string, instanceType types.InstanceType, securityGroupId string, region string, machinePwd string) (string, error) {
+	config := c.Config
+	config.Region = region
+
+	client := ec2.NewFromConfig(config)
+
+	startCmd := fmt.Sprintf(`
+		<powershell>
+		net user Administrator "%s"
+		lakitu-cli mount "%s"
+		</powershell>
+	`, machinePwd, snapshotId)
+
+	validUntil := time.Now().Add(5 * time.Minute)
+
+	launchSpecs := types.RequestSpotLaunchSpecification{
+		ImageId:      aws.String(imageId),
+		InstanceType: instanceType,
+		SecurityGroupIds: []string{
+			securityGroupId,
+		},
+		UserData: aws.String(base64.StdEncoding.EncodeToString([]byte(startCmd))),
+	}		
+
+	if instanceType == types.InstanceTypeG4dnXlarge {
+		launchSpecs.BlockDeviceMappings = []types.BlockDeviceMapping{
+			types.BlockDeviceMapping{
+				DeviceName: aws.String("xvdca"),
+				VirtualName: aws.String("ephemeral0"),
+			},
+		}
+	}
+
+	// create spot instance request
+	res, err := client.RequestSpotInstances(context.TODO(), &ec2.RequestSpotInstancesInput{
+		AvailabilityZoneGroup: aws.String(region),
+		LaunchSpecification: &launchSpecs,
+		ValidUntil: &validUntil,
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	// check status of spot request
+	spotRequest := res.SpotInstanceRequests[0]
+
+	for {
+		spotState, instanceId, err := c.GetSpotState(*spotRequest.SpotInstanceRequestId, region)
+
+		if err != nil {
+			return "", err
+		}
+
+		if spotState == types.SpotInstanceStateActive {
+			return *instanceId, nil
+		} else if spotState == types.SpotInstanceStateOpen {
+			time.Sleep(30 * time.Second)
+		} else {
+			return "", errors.New("Spot request could not be fulfilled: " + *spotRequest.SpotInstanceRequestId)
+		}
+	}
 }
 
 func (c *AWSClient) TerminateInstance(instanceId string, region string) error {
