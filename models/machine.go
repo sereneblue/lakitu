@@ -31,6 +31,7 @@ type MachineDetail struct {
 	AmiId        string        `json:"amiId"`
 	SnapshotId   string        `json:"snapshotId"`
 	Size         int32         `json:"size"`
+	AdminPassword string `json:"adminPwd"`
 }
 
 const (
@@ -68,6 +69,7 @@ func GetMachines() []MachineDetail {
 			Size:         m.Size,
 			AmiId:        m.AmiId,
 			SnapshotId:   m.SnapshotId,
+			AdminPassword: m.AdminPassword,
 		})
 	}
 

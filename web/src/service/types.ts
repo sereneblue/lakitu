@@ -18,6 +18,7 @@ export type MachineData = {
 	region: string;
 	size: number;
 	status: MachineStatus;
+	adminPwd: string;
 }
 
 export type MachineEvent = {
