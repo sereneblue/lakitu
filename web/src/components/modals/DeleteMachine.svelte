@@ -1,0 +1,72 @@
+<script lang="ts">
+	import { createEventDispatcher } from 'svelte'; 
+	import { Modal } from '../base';
+
+	import type { MachineData, ModalAction } from '../../service/types';
+	import { deleteMachine } from '../../service/machines';
+	import { showJobProgress } from '../../service/util';
+
+	export let show: boolean = false;
+	export let machine: MachineData;
+
+	let dismissible = true;
+	let jobStatusEl: HTMLElement;
+
+	const dispatch = createEventDispatcher();
+
+	const closeModal = () => {
+		show = false;
+		dispatch('close');
+	}
+
+	let action: ModalAction = {
+		text: 'Yes, delete!',
+		func: async () => {
+			dismissible = false;
+
+			let res = await deleteMachine(machine.uuid);
+
+			if (res.success) {
+				return new Promise((resolve) => {
+					showJobProgress(jobStatusEl, res.data.jobId, () => {
+						dismissible = true;
+						setTimeout(() => {
+							dispatch('refresh');
+							closeModal();
+							resolve();
+						}, 3000);
+					})
+			   });
+			}
+		}
+	}
+</script>
+
+<Modal title="Delete machine" type="danger" {action} {dismissible} {show} on:close={closeModal}>
+	<div class="mt-2">
+		<h2 class="font-semibold text-lg">
+			Are you sure you want to delete this machine?
+		</h2>
+	</div>
+	<div class="mt-2 flex flex-col space-y-1">
+		<div class="flex flex-col">
+			<div class="font-bold text-xs tracking-wide opacity-50">Name</div>
+			<div class="text-lg -mt-1">{machine.name}</div>
+		</div>
+		<div class="flex flex-col">
+			<div class="font-bold text-xs tracking-wide opacity-50">Region</div>
+			<div class="text-lg -mt-1">{machine.region}</div>
+		</div>
+		<div class="flex flex-col">
+			<div class="font-bold text-xs tracking-wide opacity-50">Instance Type</div>
+			<div class="text-lg -mt-1">{machine.instanceType}</div>
+		</div>
+		<div class="flex flex-col">
+			<div class="font-bold text-xs tracking-wide opacity-50">Storage</div>
+			<div class="text-lg -mt-1">{machine.size} GB</div>
+		</div>
+		<div class="pt-4">
+			<div bind:this={jobStatusEl} />
+		</div>
+	</div>
+</Modal>
