@@ -1,6 +1,6 @@
 import type {Response} from "./types";
 
-const getJobStatus = async (jobId: number): Promise<Response> => {
+const getJobStatus = async (jobId: number = 0): Promise<Response> => {
 	let res;
 
 	if (jobId > 0) {
