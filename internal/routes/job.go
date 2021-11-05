@@ -18,7 +18,7 @@ func GetCurrentJobStatus(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"success": false,
+		"success": true,
 		"message": "No jobs in queue",
 	})
 }
