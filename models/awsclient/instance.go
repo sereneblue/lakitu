@@ -106,8 +106,6 @@ func (c *AWSClient) StartInstance(imageId string, snapshotId string, instanceTyp
 		</powershell>
 	`, machinePwd, snapshotId)
 
-	validUntil := time.Now().Add(5 * time.Minute)
-
 	launchSpecs := types.RequestSpotLaunchSpecification{
 		ImageId:      aws.String(imageId),
 		InstanceType: instanceType,
@@ -130,7 +128,6 @@ func (c *AWSClient) StartInstance(imageId string, snapshotId string, instanceTyp
 	res, err := client.RequestSpotInstances(context.TODO(), &ec2.RequestSpotInstancesInput{
 		AvailabilityZoneGroup: aws.String(region),
 		LaunchSpecification: &launchSpecs,
-		ValidUntil: &validUntil,
 	})
 
 	if err != nil {
