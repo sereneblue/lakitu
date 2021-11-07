@@ -113,12 +113,12 @@ func (c *AWSClient) StartInstance(imageId string, snapshotId string, instanceTyp
 			securityGroupId,
 		},
 		UserData: aws.String(base64.StdEncoding.EncodeToString([]byte(startCmd))),
-	}		
+	}
 
 	if instanceType == types.InstanceTypeG4dnXlarge {
 		launchSpecs.BlockDeviceMappings = []types.BlockDeviceMapping{
 			types.BlockDeviceMapping{
-				DeviceName: aws.String("xvdca"),
+				DeviceName:  aws.String("xvdca"),
 				VirtualName: aws.String("ephemeral0"),
 			},
 		}
@@ -127,7 +127,7 @@ func (c *AWSClient) StartInstance(imageId string, snapshotId string, instanceTyp
 	// create spot instance request
 	res, err := client.RequestSpotInstances(context.TODO(), &ec2.RequestSpotInstancesInput{
 		AvailabilityZoneGroup: aws.String(region),
-		LaunchSpecification: &launchSpecs,
+		LaunchSpecification:   &launchSpecs,
 	})
 
 	if err != nil {

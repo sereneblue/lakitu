@@ -282,7 +282,7 @@ func (t *Task) requestSpotInstance(client awsclient.AWSClient, m models.Machine)
 
 	models.Engine.ID(j.Id).Cols("metadata").Update(Job{
 		Metadata: instanceId,
-	})	
+	})
 	t.updateStatus(COMPLETE, "")
 }
 

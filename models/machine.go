@@ -23,15 +23,15 @@ type Machine struct {
 }
 
 type MachineDetail struct {
-	Status       MachineStatus `json:"status"`
-	Uuid         string        `json:"uuid"`
-	Name         string        `json:"name"`
-	Region       string        `json:"region"`
-	InstanceType string        `json:"instanceType"`
-	AmiId        string        `json:"amiId"`
-	SnapshotId   string        `json:"snapshotId"`
-	Size         int32         `json:"size"`
-	AdminPassword string `json:"adminPwd"`
+	Status        MachineStatus `json:"status"`
+	Uuid          string        `json:"uuid"`
+	Name          string        `json:"name"`
+	Region        string        `json:"region"`
+	InstanceType  string        `json:"instanceType"`
+	AmiId         string        `json:"amiId"`
+	SnapshotId    string        `json:"snapshotId"`
+	Size          int32         `json:"size"`
+	AdminPassword string        `json:"adminPwd"`
 }
 
 const (
@@ -61,14 +61,14 @@ func GetMachines() []MachineDetail {
 
 	for _, m := range machines {
 		machineDetails = append(machineDetails, MachineDetail{
-			Status:       MachineStatusUnknown,
-			Uuid:         m.Uuid,
-			Name:         m.Name,
-			Region:       m.Region,
-			InstanceType: m.InstanceType,
-			Size:         m.Size,
-			AmiId:        m.AmiId,
-			SnapshotId:   m.SnapshotId,
+			Status:        MachineStatusUnknown,
+			Uuid:          m.Uuid,
+			Name:          m.Name,
+			Region:        m.Region,
+			InstanceType:  m.InstanceType,
+			Size:          m.Size,
+			AmiId:         m.AmiId,
+			SnapshotId:    m.SnapshotId,
 			AdminPassword: m.AdminPassword,
 		})
 	}
