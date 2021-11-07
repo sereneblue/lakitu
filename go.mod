@@ -18,6 +18,7 @@ require (
 	github.com/labstack/echo/v4 v4.2.2
 	github.com/mattn/go-sqlite3 v1.14.7
 	github.com/shengdoushi/base58 v1.0.0
+	github.com/urfave/cli/v2 v2.3.0 // indirect
 	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b
 	xorm.io/xorm v1.0.7
 )
