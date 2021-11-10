@@ -13,6 +13,7 @@ type AWSRole struct {
 	Id       int64
 	RoleId   string
 	RoleName string
+	Arn      string
 	Created  time.Time `xorm:"created"`
 }
 
@@ -40,7 +41,7 @@ func (c *AWSClient) CreateRole() (AWSRole, error) {
 			  ]
 			}
 		`),
-		MaxSessionDuration: aws.Int32(12 * 60 * 60),
+		MaxSessionDuration: aws.Int32(1 * 60 * 60),
 		RoleName:           aws.String(roleName),
 		Tags: []types.Tag{
 			types.Tag{
@@ -59,23 +60,17 @@ func (c *AWSClient) CreateRole() (AWSRole, error) {
 		    "Version": "2012-10-17",
 		    "Statement": [
 		        {
-		            "Action": "ec2:*",
+					"Sid": "LakituManageStorage",
+		            "Action": [
+			            "ec2:AttachVolume",
+		            	"ec2:CreateVolume",
+			            "ec2:DescribeVolumes"
+		            ],
 		            "Effect": "Allow",
-		            "Resource": "*"
+		            "Resource": [
+		            	"*"
+		            ]
 		        },
-		        {
-		            "Effect": "Allow",
-		            "Action": "iam:CreateServiceLinkedRole",
-		            "Resource": "*",
-		            "Condition": {
-		                "StringEquals": {
-		                    "iam:AWSServiceName": [
-		                        "ec2scheduled.amazonaws.com",
-		                        "spot.amazonaws.com"
-		                    ]
-		                }
-		            }
-		        }
 		    ]
 		}`),
 		PolicyName: aws.String("EC2_Limited_Access"),
@@ -88,6 +83,29 @@ func (c *AWSClient) CreateRole() (AWSRole, error) {
 
 	role.RoleId = *output.Role.RoleId
 	role.RoleName = roleName
+
+	instanceRes, err := client.CreateInstanceProfile(context.TODO(), &iam.CreateInstanceProfileInput{
+		InstanceProfileName: aws.String(roleName),
+		Tags: []types.Tag{
+			types.Tag{
+				Key:   aws.String(AWS_TAG_KEY),
+				Value: aws.String(""),
+			},
+		},
+	})
+	if err != nil {
+		return role, err
+	}
+
+	_, err = client.AddRoleToInstanceProfile(context.TODO(), &iam.AddRoleToInstanceProfileInput{
+		InstanceProfileName: instanceRes.InstanceProfile.InstanceProfileName,
+		RoleName:            aws.String(roleName),
+	})
+	if err != nil {
+		return role, err
+	}
+
+	role.Arn = *instanceRes.InstanceProfile.Arn
 
 	return role, nil
 }
