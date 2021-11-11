@@ -16,7 +16,7 @@
 		let res = await login(state.password.value);
 
 		if (res.success) {
-			goto('/machines');
+			res.data.hasPending ? goto('/loading') : goto('/machines');
 		} else {
 			state.password.error = res.message;
 		}
