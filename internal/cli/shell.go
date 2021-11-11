@@ -50,5 +50,6 @@ func (p *Shell) execute(args ...string) (stdOut string, stdErr string, err error
 
 	err = cmd.Run()
 	stdOut, stdErr = strings.TrimSpace(stdout.String()), strings.TrimSpace(stderr.String())
-	return
+
+	return stdOut, stdErr, err
 }

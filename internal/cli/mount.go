@@ -4,40 +4,10 @@ import (
 	"fmt"
 )
 
-func setupInstanceStore(shell *Shell) error {
-	fmt.Println("Mounting instance store if exists...")
+func createVolumeAndAttach(shell *Shell, snapshotId string) error {
+	fmt.Println("Creating volume from snapshot and attaching to instance...")
 
-	_, _, err := shell.execute(`
-		Get-Disk |
-		Where partitionstyle -eq 'raw'  | 
-		Where SerialNumber -like 'AWS*' | 
-		Initialize-Disk -PartitionStyle MBR -PassThru | 
-		New-Partition -DriveLetter D -UseMaximumSize  | 
-		Format-Volume -FileSystem NTFS -NewFileSystemLabel "Instance_Store" -Confirm:$false
-	`)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func MountSnapshot(snapshotId string) error {
-	ps := NewShell()
-
-	err := setupInstanceStore(ps)
-	if err != nil {
-		return err
-	}
-
-	if snapshotId == "" {
-		return nil
-	}
-
-	fmt.Println("Creating volume and attaching to instance...")
-
-	_, _, err = ps.execute(fmt.Sprintf(`
+	_, _, err := shell.execute(fmt.Sprintf(`
 		Function Get-DeviceName() {
 		    param(
 				[parameter (mandatory=$true)][string] $InstanceId            
@@ -80,6 +50,65 @@ func MountSnapshot(snapshotId string) error {
 
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func setupInstanceStore(shell *Shell) error {
+	fmt.Println("Mounting instance store if exists...")
+
+	_, _, err := shell.execute(`
+		Get-Disk |
+		Where partitionstyle -eq 'raw'  | 
+		Where SerialNumber -like 'AWS*' | 
+		Initialize-Disk -PartitionStyle MBR -PassThru | 
+		New-Partition -DriveLetter D -UseMaximumSize  | 
+		Format-Volume -FileSystem NTFS -NewFileSystemLabel "InstanceStore" -Confirm:$false
+	`)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func setupNewVolume(shell *Shell) error {
+	fmt.Println("Mounting new volume if exists...")
+
+	_, _, err := shell.execute(`
+		Get-Disk |
+		Where partitionstyle -eq 'raw'  | 
+		Where SerialNumber -like 'vol*' | 
+		Initialize-Disk -PartitionStyle MBR -PassThru | 
+		New-Partition -DriveLetter L -UseMaximumSize  | 
+		Format-Volume -FileSystem NTFS -NewFileSystemLabel "LakituStorage" -Confirm:$false
+	`)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func MountSnapshot(param string) error {
+	ps := NewShell()
+
+	err := setupInstanceStore(ps)
+	if err != nil {
+		return err
+	}
+
+	if param == "" {
+		return nil
+	}
+
+	if param == "new" {
+		return setupNewVolume(ps)
+	} else {
+		return createVolumeAndAttach(ps, param)
 	}
 
 	return nil

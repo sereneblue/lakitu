@@ -26,19 +26,17 @@ func main() {
 			},
 			{
 				Name:  "mount",
-				Usage: "Create and attach volume from a snapshot ID",
+				Usage: "Manage storage (Format new volume/instance stores and attach volume from snapshot ID )",
 				Action: func(c *cli.Context) error {
 					snapshotId := c.Args().First()
 
 					err := lakituCLI.MountSnapshot(snapshotId)
 
 					if err != nil {
-						log.Println(err)
-					} else {
-						log.Println("Snapshot successfully mounted!")
+						log.Fatal(err)
 					}
 
-					return nil
+					return err
 				},
 			},
 		},
