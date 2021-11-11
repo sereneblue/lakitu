@@ -92,16 +92,16 @@ func GetPasswordHash() string {
 	return s.Value
 }
 
-func GetRoleId() string {
+func GetRole() awsclient.AWSRole {
 	var r awsclient.AWSRole
 
 	has, err := Engine.Desc("id").Get(&r)
 
 	if err != nil || !has {
-		return ""
+		return r
 	}
 
-	return r.RoleId
+	return r
 }
 
 func GetSecurityGroupId(streamSW awsclient.StreamSoftware) string {

@@ -93,7 +93,7 @@ func (c *AWSClient) GetSpotState(spotRequestId string, region string) (types.Spo
 	return "", nil, err
 }
 
-func (c *AWSClient) StartInstance(imageId string, snapshotId string, instanceType types.InstanceType, securityGroupId string, region string, machinePwd string) (string, error) {
+func (c *AWSClient) StartInstance(imageId string, snapshotId string, instanceType types.InstanceType, securityGroupId string, region string, machinePwd string, IamArn string, IamName string) (string, error) {
 	config := c.Config
 	config.Region = region
 
@@ -107,6 +107,10 @@ func (c *AWSClient) StartInstance(imageId string, snapshotId string, instanceTyp
 	`, machinePwd, snapshotId)
 
 	launchSpecs := types.RequestSpotLaunchSpecification{
+		IamInstanceProfile: &types.IamInstanceProfileSpecification{
+			Arn:  aws.String(IamArn),
+			Name: aws.String(IamName),
+		},
 		ImageId:      aws.String(imageId),
 		InstanceType: instanceType,
 		SecurityGroupIds: []string{

@@ -154,14 +154,14 @@ func NewTask(jobId int64, taskType JobType) Task {
 }
 
 func (t *Task) createRole(client awsclient.AWSClient) {
-	roleId := models.GetRoleId()
+	role := models.GetRole()
 	roles, err := client.GetRoles()
 
 	if err == nil {
 		found := false
 
 		for _, r := range roles {
-			if *r.RoleId == roleId {
+			if *r.RoleId == role.RoleId {
 				found = true
 			}
 		}
@@ -266,6 +266,7 @@ func (t *Task) requestSpotInstance(client awsclient.AWSClient, m models.Machine)
 	var instanceType types.InstanceType
 
 	securityGroupId := models.GetSecurityGroupId(m.StreamSoftware)
+	role := models.GetRole()
 
 	if m.InstanceType == string(types.InstanceTypeG3sXlarge) {
 		instanceType = types.InstanceTypeG3sXlarge
@@ -273,7 +274,7 @@ func (t *Task) requestSpotInstance(client awsclient.AWSClient, m models.Machine)
 		instanceType = types.InstanceTypeG4dnXlarge
 	}
 
-	instanceId, err := client.StartInstance(m.AmiId, m.SnapshotId, instanceType, securityGroupId, m.Region, m.AdminPassword)
+	instanceId, err := client.StartInstance(m.AmiId, m.SnapshotId, instanceType, securityGroupId, m.Region, m.AdminPassword, role.Arn, role.RoleName)
 
 	if err != nil {
 		t.updateStatus(ERROR, err.Error())
