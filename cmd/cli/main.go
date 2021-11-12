@@ -21,22 +21,14 @@ func main() {
 				Name:  "bootstrap",
 				Usage: "Download and install dependencies on new server",
 				Action: func(c *cli.Context) error {
-					return nil
+					return lakituCLI.BootstrapParsec()
 				},
 			},
-			{
+			{	
 				Name:  "mount",
-				Usage: "Manage storage (Format new volume/instance stores and attach volume from snapshot ID )",
+				Usage: "Manage storage (Format new volume/instance stores and attach volume from snapshot ID)",
 				Action: func(c *cli.Context) error {
-					snapshotId := c.Args().First()
-
-					err := lakituCLI.MountSnapshot(snapshotId)
-
-					if err != nil {
-						log.Fatal(err)
-					}
-
-					return err
+					return lakituCLI.MountSnapshot(c.Args().First())
 				},
 			},
 		},
