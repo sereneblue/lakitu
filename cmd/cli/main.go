@@ -24,7 +24,7 @@ func main() {
 					return lakituCLI.BootstrapParsec()
 				},
 			},
-			{	
+			{
 				Name:  "mount",
 				Usage: "Manage storage (Format new volume/instance stores and attach volume from snapshot ID)",
 				Action: func(c *cli.Context) error {
