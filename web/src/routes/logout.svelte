@@ -4,6 +4,8 @@
 			credentials: 'include'
 		});
 
+		await res.json();
+		
 		return {
 			status: 302,
 			redirect: '/login'
