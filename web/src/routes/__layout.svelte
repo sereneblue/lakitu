@@ -1,3 +1,24 @@
+<script context="module" lang="ts">
+	import type { LoadInput, LoadOutput } from '@sveltejs/kit/types.internal';
+
+	export async function load({ page, fetch }: LoadInput): Promise<LoadOutput> {
+		let res = await fetch('http://' + page.host + '/session/loggedin');
+		let data = await res.json();
+
+		const loggedIn = data.success;
+
+		if (loggedIn && page.path === '/login') {
+			return { status: 302, redirect: '/loading' };
+		} else if (!loggedIn && page.path != '/login') {
+			return { status: 302, redirect: '/login' };
+		}
+
+		return {
+			status: 200
+		}
+	}
+</script>
+
 <div>
 	<div class="flex bg-nord0 text-nord4 h-full min-h-screen px-6 py-8">
 		<slot />
