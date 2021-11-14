@@ -179,6 +179,12 @@ func ChangePreferences(c echo.Context) error {
 	})
 }
 
+func IsLoggedIn(c echo.Context) error {
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"success": true,
+	})
+}
+
 func Login(c echo.Context) error {
 	loginPwd := c.FormValue("password")
 

@@ -37,10 +37,11 @@ func main() {
 	setup.POST("/complete", routes.CompleteSetup)
 
 	sess := e.Group("/session")
-	sess.POST("/change-password", routes.ChangePassword)
-	sess.POST("/update-preferences", routes.ChangePreferences)
+	sess.POST("/change-password", routes.ChangePassword, lakituMiddleware.RequireLogin)
+	sess.POST("/update-preferences", routes.ChangePreferences, lakituMiddleware.RequireLogin)
 	sess.POST("/login", routes.Login)
-	sess.GET("/logout", routes.Logout)
+	sess.GET("/loggedin", routes.IsLoggedIn, lakituMiddleware.RequireLogin)
+	sess.GET("/logout", routes.Logout, lakituMiddleware.RequireLogin)
 	sess.GET("/user", routes.UserData, lakituMiddleware.RequireLogin)
 
 	aws := e.Group("/aws")
