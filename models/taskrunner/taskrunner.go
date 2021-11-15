@@ -47,6 +47,10 @@ func (t *TaskRunner) GetCurrentJob() int64 {
 	return 0
 }
 
+func (t *TaskRunner) IsRunning() bool {
+	return atomic.LoadInt32(&(t.running)) == 1
+}
+
 func (t *TaskRunner) Queue(jobType JobType, jobData JobData) (int64, error) {
 	res, err := models.Engine.Transaction(func(session *xorm.Session) (interface{}, error) {
 		job := NewJob(jobType, jobData)
