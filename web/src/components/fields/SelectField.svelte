@@ -30,12 +30,11 @@
 		class="
 			block
 			appearance-none
-			bg-nord6 bg-opacity-10 
+			bg-nord6 bg-opacity-10
 			border-2 border-transparent
 			rounded w-full
 			p-2
 			leading-tight
-			focus-visible:bg-white
 			focus:outline-none focus:border-accent-200"
 		class:default={placeholder && selectedValue === ''}
 		class:w-full={full}
