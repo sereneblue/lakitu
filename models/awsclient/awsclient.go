@@ -205,7 +205,8 @@ func (c *AWSClient) GetWindowsAMIId() (string, error) {
 
 	amiIds := map[string]string{}
 	for _, image := range res.Images {
-		if strings.HasPrefix(*image.Name, "Windows_Server") {
+		// get windows server 2019
+		if strings.HasPrefix(*image.Name, "Windows_Server") && strings.Contains(*image.Name, "2019") {
 			amiIds[*image.Name] = *image.ImageId
 		}
 	}
