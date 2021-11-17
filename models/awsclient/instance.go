@@ -12,38 +12,67 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 )
 
-func (c *AWSClient) CreateSpotInstance(imageId string, createMachine bool) (bool, error) {
-	client := ec2.NewFromConfig(c.Config)
+func (c *AWSClient) CreateInstance(imageId string, instanceType types.InstanceType, securityGroupId string, region string, machinePwd string, IamArn string) (string, error) {
+	config := c.Config
+	config.Region = region
 
-	_, err := client.RequestSpotInstances(context.TODO(), &ec2.RequestSpotInstancesInput{
-		ClientToken:   aws.String(""),
-		InstanceCount: 1,
-		LaunchSpecification: &types.RequestSpotLaunchSpecification{
-			ImageId:          aws.String(""),
-			InstanceType:     types.InstanceTypeG22xlarge,
-			KeyName:          aws.String(""),
-			SecurityGroupIds: []string{},
-			UserData:         aws.String(""),
+	client := ec2.NewFromConfig(config)
+
+	startCmd := fmt.Sprintf(`
+		<powershell>
+		net user Administrator "%s"
+		</powershell>
+	`, machinePwd)
+
+	launchSpecs := types.RequestSpotLaunchSpecification{
+		IamInstanceProfile: &types.IamInstanceProfileSpecification{
+			Arn: aws.String(IamArn),
 		},
-		SpotPrice: aws.String(""),
-		TagSpecifications: []types.TagSpecification{
-			types.TagSpecification{
-				ResourceType: types.ResourceTypeSecurityGroup,
-				Tags: []types.Tag{
-					types.Tag{
-						Key:   aws.String(AWS_TAG_KEY),
-						Value: aws.String(""),
-					},
-				},
+		ImageId:      aws.String(imageId),
+		InstanceType: instanceType,
+		SecurityGroupIds: []string{
+			securityGroupId,
+		},
+		UserData: aws.String(base64.StdEncoding.EncodeToString([]byte(startCmd))),
+	}
+
+	if instanceType == types.InstanceTypeG4dnXlarge {
+		launchSpecs.BlockDeviceMappings = []types.BlockDeviceMapping{
+			types.BlockDeviceMapping{
+				DeviceName:  aws.String("xvdca"),
+				VirtualName: aws.String("ephemeral0"),
 			},
-		},
+		}
+	}
+
+	// create spot instance request
+	res, err := client.RequestSpotInstances(context.TODO(), &ec2.RequestSpotInstancesInput{
+		AvailabilityZoneGroup: aws.String(region),
+		LaunchSpecification:   &launchSpecs,
 	})
 
 	if err != nil {
-		return false, err
+		return "", err
 	}
 
-	return true, nil
+	// check status of spot request
+	spotRequest := res.SpotInstanceRequests[0]
+
+	for {
+		spotState, spotStatusCode, instanceId, err := c.GetSpotState(*spotRequest.SpotInstanceRequestId, region)
+
+		if err != nil {
+			return "", err
+		}
+
+		if spotState == types.SpotInstanceStateActive {
+			return *instanceId, nil
+		} else if spotState == types.SpotInstanceStateOpen && spotStatusCode != "capacity-not-available" {
+			time.Sleep(30 * time.Second)
+		} else {
+			return "", errors.New("Spot request could not be fulfilled: " + *spotRequest.SpotInstanceRequestId)
+		}
+	}
 }
 
 func (c *AWSClient) GetInstanceState(instanceId string, region string) (types.InstanceStateName, error) {

@@ -49,6 +49,7 @@ func (j *Job) GetTasks() []Task {
 			NewTask(j.Id, TaskCreateRole),
 			NewTask(j.Id, TaskCreateSecurityGroup),
 			NewTask(j.Id, TaskCreateInstance),
+			NewTask(j.Id, TaskCreateNewVolume),
 		}
 	case JobDeleteMachine:
 		return []Task{

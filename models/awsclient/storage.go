@@ -52,6 +52,75 @@ func (c *AWSClient) CreateSnapshot(volumeId string, region string) (string, erro
 	return "", err
 }
 
+func (c *AWSClient) CreateNewVolume(instanceId string, size int32, region string) error {
+	config := c.Config
+	config.Region = region
+
+	client := ec2.NewFromConfig(config)
+
+	res, err := client.DescribeInstances(context.TODO(), &ec2.DescribeInstancesInput{
+		Filters: []types.Filter{
+			types.Filter{
+				Name:   aws.String("instance-id"),
+				Values: []string{instanceId},
+			},
+		},
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if len(res.Reservations[0].Instances) == 0 {
+		return errors.New("Could not find instance info")
+	}
+
+	volumeRes, err := client.CreateVolume(context.TODO(), &ec2.CreateVolumeInput{
+		AvailabilityZone: res.Reservations[0].Instances[0].Placement.AvailabilityZone,
+		Size:             size,
+		VolumeType:       types.VolumeTypeGp3,
+	})
+
+	if err == nil {
+		// wait for volume to be available
+		for {
+			volumeState, err := c.GetVolumeState(*volumeRes.VolumeId, region)
+
+			if err != nil {
+				_, deleteErr := c.DeleteVolume(*volumeRes.VolumeId, region)
+
+				if deleteErr != nil {
+					return deleteErr
+				}
+
+				return err
+			}
+
+			if volumeState == types.VolumeStateAvailable {
+				break
+			} else if volumeState == types.VolumeStateCreating {
+				time.Sleep(30 * time.Second)
+			} else {
+				return errors.New("Invalid state for volume: " + *volumeRes.VolumeId)
+			}
+		}
+	} else {
+		return err
+	}
+
+	// attach volume to instance
+	_, err = client.AttachVolume(context.TODO(), &ec2.AttachVolumeInput{
+		Device: aws.String("xvdh"),
+		InstanceId: aws.String(instanceId),
+		VolumeId:   volumeRes.VolumeId,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (c *AWSClient) CreateVolume(snapshotId string, region string) (string, error) {
 	config := c.Config
 	config.Region = region

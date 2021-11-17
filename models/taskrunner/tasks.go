@@ -18,6 +18,7 @@ const (
 	TaskCreateRole
 	TaskCreateSecurityGroup
 	TaskCreateInstance
+	TaskCreateNewVolume
 	TaskDeleteImage
 	TaskDeleteSnapshot
 	TaskRequestSpotInstance
@@ -35,6 +36,7 @@ var TASK_NAME map[TaskType]string = map[TaskType]string{
 	TaskCreateRole:          "Creating role",
 	TaskCreateSecurityGroup: "Creating security group",
 	TaskCreateInstance:      "Creating instance",
+	TaskCreateNewVolume:     "Creating new volume",
 	TaskDeleteImage:         "Deleting image",
 	TaskDeleteSnapshot:      "Deleting snapshot",
 	TaskResizeVolume:        "Resizing volume",
@@ -78,6 +80,10 @@ func (t *Task) HandleTask(client awsclient.AWSClient, machine models.Machine) {
 		t.createRole(client)
 	case TaskCreateSecurityGroup:
 		t.createSecurityGroup(client, machine)
+	case TaskCreateInstance:
+		t.createInstance(client, machine)
+	case TaskCreateNewVolume:
+		t.createNewVolume(client, machine)
 	case TaskDeleteImage:
 		t.deleteImage(client, machine)
 	case TaskDeleteSnapshot:
@@ -150,6 +156,59 @@ func NewTask(jobId int64, taskType JobType) Task {
 		JobId:  jobId,
 		Type:   taskType,
 		Status: PENDING,
+	}
+}
+
+func (t *Task) createInstance(client awsclient.AWSClient, m models.Machine) {
+	var instanceType types.InstanceType
+	var j Job
+
+	models.Engine.ID(t.JobId).Get(&j)
+
+	securityGroupId := models.GetSecurityGroupId(m.StreamSoftware)
+	role := models.GetRole()
+
+	if m.InstanceType == string(types.InstanceTypeG3sXlarge) {
+		instanceType = types.InstanceTypeG3sXlarge
+	} else {
+		instanceType = types.InstanceTypeG4dnXlarge
+	}
+
+	// get ami id
+	amiId, err := client.GetWindowsAMIId()
+	if err != nil {
+		t.updateStatus(ERROR, err.Error())
+		return
+	}
+
+	models.Engine.ID(m.Id).Cols("ami_id").Update(models.Machine{
+		AmiId: amiId,
+	})
+	m.AmiId = amiId
+
+	instanceId, err := client.CreateInstance(m.AmiId, instanceType, securityGroupId, m.Region, m.AdminPassword, role.Arn)
+	if err != nil {
+		t.updateStatus(ERROR, err.Error())
+		return
+	}
+
+	models.Engine.ID(j.Id).Cols("metadata").Update(Job{
+		Metadata: instanceId,
+	})
+	t.updateStatus(COMPLETE, "")
+}
+
+func (t *Task) createNewVolume(client awsclient.AWSClient, m models.Machine) {
+	var j Job
+
+	models.Engine.ID(t.JobId).Get(&j)
+
+	err := client.CreateNewVolume(j.Metadata, m.Size, m.Region)
+
+	if err == nil {
+		t.updateStatus(COMPLETE, "")
+	} else {
+		t.updateStatus(ERROR, err.Error())
 	}
 }
 
