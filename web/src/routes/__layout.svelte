@@ -5,9 +5,13 @@
 		let res = await fetch('http://' + page.host + '/session/loggedin');
 		let data = await res.json();
 
-		const loggedIn = data.success;
+		res = await fetch('http://' + page.host + '/jobs');
+		let pendingData = await res.json();
 
-		if (loggedIn && page.path === '/login') {
+		const loggedIn = data.success;
+		const hasPending = pendingData.success && pendingData.data == undefined;
+
+		if (loggedIn && page.path === '/login' || (loggedIn && hasPending)) {
 			return { status: 302, redirect: '/loading' };
 		} else if (!loggedIn && page.path != '/login') {
 			return { status: 302, redirect: '/login' };
