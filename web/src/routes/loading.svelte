@@ -15,9 +15,9 @@
 
 	const checkJob = async (): Promise<void> => {
 		let res = await getJobStatus();
-
+		
 		if (res.success) {
-			if (res.data == undefined) {
+			if (res.data.isComplete) {
 				window.location.href = '/machines';
 			} else {
 				state.job = res.data;		
