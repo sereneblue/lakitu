@@ -72,7 +72,7 @@ func (c *AWSClient) GetInstanceState(instanceId string, region string) (types.In
 	return "", err
 }
 
-func (c *AWSClient) GetSpotState(spotRequestId string, region string) (types.SpotInstanceState, *string, error) {
+func (c *AWSClient) GetSpotState(spotRequestId string, region string) (types.SpotInstanceState, string, *string, error) {
 	config := c.Config
 	config.Region = region
 
@@ -84,13 +84,13 @@ func (c *AWSClient) GetSpotState(spotRequestId string, region string) (types.Spo
 
 	if err == nil {
 		if len(res.SpotInstanceRequests) > 0 {
-			return res.SpotInstanceRequests[0].State, res.SpotInstanceRequests[0].InstanceId, nil
+			return res.SpotInstanceRequests[0].State, *res.SpotInstanceRequests[0].Status.Code, res.SpotInstanceRequests[0].InstanceId, nil
 		}
 
-		return "", nil, errors.New("Could not find spot request: " + spotRequestId)
+		return "", "", nil, errors.New("Could not find spot request: " + spotRequestId)
 	}
 
-	return "", nil, err
+	return "", "", nil, err
 }
 
 func (c *AWSClient) StartInstance(imageId string, snapshotId string, instanceType types.InstanceType, securityGroupId string, region string, machinePwd string, IamArn string, IamName string) (string, error) {
@@ -142,7 +142,7 @@ func (c *AWSClient) StartInstance(imageId string, snapshotId string, instanceTyp
 	spotRequest := res.SpotInstanceRequests[0]
 
 	for {
-		spotState, instanceId, err := c.GetSpotState(*spotRequest.SpotInstanceRequestId, region)
+		spotState, spotStatusCode, instanceId, err := c.GetSpotState(*spotRequest.SpotInstanceRequestId, region)
 
 		if err != nil {
 			return "", err
@@ -150,7 +150,7 @@ func (c *AWSClient) StartInstance(imageId string, snapshotId string, instanceTyp
 
 		if spotState == types.SpotInstanceStateActive {
 			return *instanceId, nil
-		} else if spotState == types.SpotInstanceStateOpen {
+		} else if spotState == types.SpotInstanceStateOpen && spotStatusCode != "capacity-not-available" {
 			time.Sleep(30 * time.Second)
 		} else {
 			return "", errors.New("Spot request could not be fulfilled: " + *spotRequest.SpotInstanceRequestId)
