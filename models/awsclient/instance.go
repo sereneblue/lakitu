@@ -12,6 +12,25 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 )
 
+func (c *AWSClient) tagResource(resourceId string, region string) error {
+	config := c.Config
+	config.Region = region
+
+	client := ec2.NewFromConfig(config)
+
+	_, err := client.CreateTags(context.TODO(), &ec2.CreateTagsInput{
+		Resources: []string{resourceId},
+		Tags: []types.Tag{
+			types.Tag{
+				Key:   aws.String(AWS_TAG_KEY),
+				Value: aws.String(""),
+			},
+		},
+	})
+
+	return err
+}
+
 func (c *AWSClient) CreateInstance(imageId string, instanceType types.InstanceType, securityGroupId string, region string, machinePwd string, IamArn string) (string, error) {
 	config := c.Config
 	config.Region = region
@@ -66,6 +85,11 @@ func (c *AWSClient) CreateInstance(imageId string, instanceType types.InstanceTy
 		}
 
 		if spotState == types.SpotInstanceStateActive {
+			err := c.tagResource(*instanceId, region)
+			if err != nil {
+				return "", err
+			}
+
 			return *instanceId, nil
 		} else if spotState == types.SpotInstanceStateOpen && spotStatusCode != "capacity-not-available" {
 			time.Sleep(30 * time.Second)
@@ -178,6 +202,11 @@ func (c *AWSClient) StartInstance(imageId string, snapshotId string, instanceTyp
 		}
 
 		if spotState == types.SpotInstanceStateActive {
+			err := c.tagResource(*instanceId, region)
+			if err != nil {
+				return "", err
+			}
+
 			return *instanceId, nil
 		} else if spotState == types.SpotInstanceStateOpen && spotStatusCode != "capacity-not-available" {
 			time.Sleep(30 * time.Second)

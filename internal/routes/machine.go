@@ -105,21 +105,23 @@ func ListMachines(c echo.Context) error {
 		for i := range machines {
 			machines[i].Status = models.MachineStatusUnavailable
 
-			_, exists := availability["snapshots"][machines[i].SnapshotId]
-			// if new instance, storage is not created
-			if !exists && machines[i].SnapshotId != "" {
-				continue
+			if machines[i].SnapshotId != "" {
+				_, exists := availability["snapshots"][machines[i].SnapshotId]
+				// if new instance, storage is not created
+				if !exists {
+					continue
+				}
+
+				_, exists = availability["images"][machines[i].AmiId]
+				// if using windows ami, image won't exist
+				if !exists {
+					continue
+				}
+
+				machines[i].Status = models.MachineStatusOffline
 			}
 
-			_, exists = availability["images"][machines[i].AmiId]
-			// if using windows ami, image won't exist
-			if !exists && machines[i].SnapshotId != "" {
-				continue
-			}
-
-			machines[i].Status = models.MachineStatusOffline
-
-			_, exists = availability["instances"][machines[i].AmiId]
+			_, exists := availability["instances"][machines[i].AmiId]
 			if !exists {
 				continue
 			}

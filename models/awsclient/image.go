@@ -19,8 +19,19 @@ func (c *AWSClient) CreateImage(instanceId string, region string) (string, error
 
 	res, err := client.CreateImage(context.TODO(), &ec2.CreateImageInput{
 		InstanceId:  aws.String(instanceId),
-		Name:        aws.String("New image"),
+		Name:        aws.String("lakitu_image"),
 		Description: aws.String(""),
+		TagSpecifications: []types.TagSpecification{
+			types.TagSpecification{
+				ResourceType: types.ResourceTypeImage,
+				Tags: []types.Tag{
+					types.Tag{
+						Key:   aws.String(AWS_TAG_KEY),
+						Value: aws.String(""),
+					},
+				},
+			},
+		},
 	})
 
 	if err == nil {

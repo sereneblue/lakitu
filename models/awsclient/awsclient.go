@@ -119,6 +119,10 @@ func (c *AWSClient) GetAvailability(regionList []string) map[string]map[string]b
 		instanceRes, err := client.DescribeInstances(context.TODO(), &ec2.DescribeInstancesInput{
 			Filters: []types.Filter{
 				types.Filter{
+					Name:   aws.String("instance-state-name"),
+					Values: []string{string(types.InstanceStateNameRunning)},
+				},
+				types.Filter{
 					Name:   aws.String("tag-key"),
 					Values: []string{AWS_TAG_KEY},
 				},
@@ -278,6 +282,10 @@ func (c *AWSClient) GetMachineData(imageId string, region string) (string, strin
 			types.Filter{
 				Name:   aws.String("image-id"),
 				Values: []string{imageId},
+			},
+			types.Filter{
+				Name:   aws.String("instance-state-name"),
+				Values: []string{string(types.InstanceStateNameRunning)},
 			},
 		},
 	})

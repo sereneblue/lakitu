@@ -433,7 +433,6 @@ func (t *Task) startMachine(client awsclient.AWSClient, m models.Machine) {
 			return
 		}
 	}
-
 }
 
 func (t *Task) stopMachine(client awsclient.AWSClient, m models.Machine) {
@@ -463,16 +462,19 @@ func (t *Task) stopMachine(client awsclient.AWSClient, m models.Machine) {
 	}
 
 	// delete older snapshot and ami
-	err = client.DeleteImage(m.AmiId, m.Region)
-	if err != nil {
-		t.updateStatus(ERROR, err.Error())
-		return
-	}
+	// check if new machine
+	if m.SnapshotId != "" {
+		err = client.DeleteImage(m.AmiId, m.Region)
+		if err != nil {
+			t.updateStatus(ERROR, err.Error())
+			return
+		}
 
-	err = client.DeleteSnapshot(m.SnapshotId, m.Region)
-	if err != nil {
-		t.updateStatus(ERROR, err.Error())
-		return
+		err = client.DeleteSnapshot(m.SnapshotId, m.Region)
+		if err != nil {
+			t.updateStatus(ERROR, err.Error())
+			return
+		}
 	}
 
 	t.updateStatus(COMPLETE, "")

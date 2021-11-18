@@ -79,6 +79,17 @@ func (c *AWSClient) CreateNewVolume(instanceId string, size int32, region string
 		AvailabilityZone: res.Reservations[0].Instances[0].Placement.AvailabilityZone,
 		Size:             size,
 		VolumeType:       types.VolumeTypeGp3,
+		TagSpecifications: []types.TagSpecification{
+			types.TagSpecification{
+				ResourceType: types.ResourceTypeVolume,
+				Tags: []types.Tag{
+					types.Tag{
+						Key:   aws.String(AWS_TAG_KEY),
+						Value: aws.String(""),
+					},
+				},
+			},
+		},
 	})
 
 	if err == nil {
@@ -152,6 +163,17 @@ func (c *AWSClient) CreateVolume(snapshotId string, region string) (string, erro
 		AvailabilityZone: res.AvailabilityZones[0].ZoneName,
 		SnapshotId:       aws.String(snapshotId),
 		VolumeType:       types.VolumeTypeGp3,
+		TagSpecifications: []types.TagSpecification{
+			types.TagSpecification{
+				ResourceType: types.ResourceTypeVolume,
+				Tags: []types.Tag{
+					types.Tag{
+						Key:   aws.String(AWS_TAG_KEY),
+						Value: aws.String(""),
+					},
+				},
+			},
+		},
 	})
 
 	if err == nil {
