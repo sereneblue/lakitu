@@ -17,7 +17,7 @@
 		let res = await getJobStatus();
 		
 		if (res.success) {
-			if (res.data.isComplete) {
+			if (res.data == undefined || (res.data && res.data.isComplete)) {
 				window.location.href = '/machines';
 			} else {
 				state.job = res.data;		
