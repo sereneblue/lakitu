@@ -377,7 +377,7 @@ func (t *Task) saveMachine(client awsclient.AWSClient, m models.Machine) {
 	models.Engine.ID(t.JobId).Get(&j)
 
 	// get current instance
-	instanceId, volumeId, err := client.GetMachineData(m.AmiId, m.SnapshotId, m.Region)
+	instanceId, volumeId, err := client.GetMachineData(m.AmiId, m.Region)
 	if err != nil {
 		t.updateStatus(ERROR, err.Error())
 		return

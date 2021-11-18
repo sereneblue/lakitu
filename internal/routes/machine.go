@@ -106,12 +106,14 @@ func ListMachines(c echo.Context) error {
 			machines[i].Status = models.MachineStatusUnavailable
 
 			_, exists := availability["snapshots"][machines[i].SnapshotId]
-			if !exists {
+			// if new instance, storage is not created
+			if !exists && machines[i].SnapshotId != "" {
 				continue
 			}
 
 			_, exists = availability["images"][machines[i].AmiId]
-			if !exists {
+			// if using windows ami, image won't exist
+			if !exists && machines[i].SnapshotId != "" {
 				continue
 			}
 

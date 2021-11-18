@@ -270,7 +270,7 @@ func (c *AWSClient) GetGPUInstances(region string) []AWSGPUInstance {
 	return instances
 }
 
-func (c *AWSClient) GetMachineData(imageId string, snapshotId string, region string) (string, string, error) {
+func (c *AWSClient) GetMachineData(imageId string, region string) (string, string, error) {
 	client := ec2.NewFromConfig(c.Config)
 
 	res, err := client.DescribeInstances(context.TODO(), &ec2.DescribeInstancesInput{
@@ -295,8 +295,12 @@ func (c *AWSClient) GetMachineData(imageId string, snapshotId string, region str
 	volumeRes, err := client.DescribeVolumes(context.TODO(), &ec2.DescribeVolumesInput{
 		Filters: []types.Filter{
 			types.Filter{
-				Name:   aws.String("snapshot-id"),
-				Values: []string{snapshotId},
+				Name:   aws.String("attachment.instance-id"),
+				Values: []string{instanceId},
+			},
+			types.Filter{
+				Name:   aws.String("tag-key"),
+				Values: []string{AWS_TAG_KEY},
 			},
 		},
 	})
