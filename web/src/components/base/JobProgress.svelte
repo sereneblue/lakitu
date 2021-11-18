@@ -7,7 +7,8 @@
 
 	export let jobId: number = 0;
 	export let showAllDetails: boolean = false;
-	export let done: Function = () => {};
+	export let onComplete: Function = () => {};
+	export let onErr: Function = () => {};
 
 	let state = {
 		job: {
@@ -33,18 +34,23 @@
 			if (res.data.isComplete) {
 				notify(notifyEl, "success", "Task was completed successfully", 0);
 
-				done();
+				onComplete();
 
 				clearTimeout(timeout);
 			} else {
 				if (res.data.status == Status.ERROR) {
-					notify(notifyEl, "danger", "There was an error completing task.", 0);
+					notify(notifyEl, "danger", res.data.error, 0);
+
+					onErr();
 				} else {
 					timeout = setTimeout(checkJob, 2000);
 				}
 			}
 		} else {
 			notify(notifyEl, "danger", res.message, 0);
+
+			onErr();
+
 			clearTimeout(timeout);
 		}
 	};

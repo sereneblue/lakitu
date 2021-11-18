@@ -21,14 +21,16 @@ export function notify(
 export function showJobProgress(
 	target: HTMLElement, 
 	jobId: number, 
-	done: Function
+	onComplete: Function,
+	onErr: Function
 ) {
 	new JobProgress({
 		target,
 		hydrate: true,
 		props: {
 			jobId,
-			done: done || (() => {})
+			onComplete: onComplete || (() => {}),
+			onErr: onErr || (() => {})
 		},
 	});
 }

@@ -41,6 +41,12 @@
 							closeModal();
 							resolve();
 						}, 3000);
+					}, () => {
+						dismissible = true;
+						setTimeout(() => {
+							dispatch('refresh');
+							resolve();
+						}, 2000);
 					})
 			   });
 			}
