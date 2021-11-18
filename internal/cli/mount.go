@@ -4,6 +4,8 @@ import (
 	"fmt"
 )
 
+const AWS_TAG_KEY = "lakitu";
+
 func createVolumeAndAttach(shell *Shell, snapshotId string) error {
 	fmt.Println("Creating volume from snapshot and attaching to instance...")
 
@@ -29,7 +31,15 @@ func createVolumeAndAttach(shell *Shell, snapshotId string) error {
 		$instanceId = Get-EC2InstanceMetadata -Path "/instance-id";
 		$zone = Get-EC2InstanceMetadata -Path "/placement/availability-zone";
 		$volumeType = "gp3";
-		$volumeId = (New-EC2Volume -SnapshotId "%s" -AvailabilityZone $zone -VolumeType $volumeType).VolumeId;
+
+		$TagSpecification = [Amazon.EC2.Model.TagSpecification]::new()
+		$TagSpecification.ResourceType = 'Volume'
+    	$TagSpecification.Tags.Add([Amazon.EC2.Model.Tag]@{
+	        Key   = "%s"
+	        Value = ""
+	    });
+
+		$volumeId = (New-EC2Volume -SnapshotId "%s" -AvailabilityZone $zone -VolumeType $volumeType -TagSpecification $TagSpecification).VolumeId;
 
 		while ((Get-EC2Volume -VolumeId $volumeId).State -ne "available") {
 		  write-host -NoNewline "."
@@ -46,7 +56,7 @@ func createVolumeAndAttach(shell *Shell, snapshotId string) error {
 
 		$diskNum = (Get-Disk | Where OperationalStatus -eq 'Offline').Number;
 		Set-Disk -Number $diskNum -IsOffline $False;
-	`, snapshotId))
+	`, AWS_TAG_KEY, snapshotId))
 
 	if err != nil {
 		return err
