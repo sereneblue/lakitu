@@ -77,7 +77,7 @@ type TaskSaveInstanceMetadata struct {
 func (t *Task) HandleTask(client awsclient.AWSClient, machine models.Machine) {
 	switch t.Type {
 	case TaskCreateRole:
-		t.createRole(client)
+		t.createRole(client, machine)
 	case TaskCreateSecurityGroup:
 		t.createSecurityGroup(client, machine)
 	case TaskCreateInstance:
@@ -177,6 +177,11 @@ func (t *Task) createInstance(client awsclient.AWSClient, m models.Machine) {
 	// get ami id
 	amiId, err := client.GetWindowsAMIId()
 	if err != nil {
+		// delete new machine if task fails
+		models.Engine.ID(m.Id).Cols("deleted").Update(models.Machine{
+			Deleted: true,
+		})
+
 		t.updateStatus(ERROR, err.Error())
 		return
 	}
@@ -188,6 +193,11 @@ func (t *Task) createInstance(client awsclient.AWSClient, m models.Machine) {
 
 	instanceId, err := client.CreateInstance(m.AmiId, instanceType, securityGroupId, m.Region, m.AdminPassword, role.Arn)
 	if err != nil {
+		// delete new machine if task fails
+		models.Engine.ID(m.Id).Cols("deleted").Update(models.Machine{
+			Deleted: true,
+		})
+
 		t.updateStatus(ERROR, err.Error())
 		return
 	}
@@ -208,11 +218,16 @@ func (t *Task) createNewVolume(client awsclient.AWSClient, m models.Machine) {
 	if err == nil {
 		t.updateStatus(COMPLETE, "")
 	} else {
+		// delete new machine if task fails
+		models.Engine.ID(m.Id).Cols("deleted").Update(models.Machine{
+			Deleted: true,
+		})
+
 		t.updateStatus(ERROR, err.Error())
 	}
 }
 
-func (t *Task) createRole(client awsclient.AWSClient) {
+func (t *Task) createRole(client awsclient.AWSClient, m models.Machine) {
 	role := models.GetRole()
 	roles, err := client.GetRoles()
 
@@ -238,6 +253,11 @@ func (t *Task) createRole(client awsclient.AWSClient) {
 			return
 		}
 	}
+
+	// delete new machine if task fails
+	models.Engine.ID(m.Id).Cols("deleted").Update(models.Machine{
+		Deleted: true,
+	})
 
 	t.updateStatus(ERROR, err.Error())
 }
@@ -268,6 +288,11 @@ func (t *Task) createSecurityGroup(client awsclient.AWSClient, m models.Machine)
 			return
 		}
 	}
+
+	// delete new machine if task fails
+	models.Engine.ID(m.Id).Cols("deleted").Update(models.Machine{
+		Deleted: true,
+	})
 
 	t.updateStatus(ERROR, err.Error())
 }
