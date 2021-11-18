@@ -36,6 +36,7 @@ func GetJobStatus(c echo.Context) error {
 		    	   IFNULL(MIN(CASE WHEN tasks.status = ? THEN tasks.type END), 0) as currentTask,
 			   	   SUM(CASE WHEN tasks.status = ? THEN 1 ELSE 0 END) as completed, 
 			   	   COUNT(tasks.id) as total,
+			   	   MAX(tasks.error_info) as error,
 			   	   j.type as jobType
 		      FROM job j
    LEFT OUTER JOIN tasks
@@ -56,6 +57,7 @@ func GetJobStatus(c echo.Context) error {
 		status, _ := strconv.ParseInt(string(results[0]["status"]), 10, 64)
 		currentTask, _ := strconv.ParseInt(string(results[0]["currentTask"]), 10, 64)
 		total, _ := strconv.ParseInt(string(results[0]["total"]), 10, 64)
+		errorInfo := string(results[0]["error"])
 
 		if completed == total {
 			currentTask = taskrunner.TaskComplete
@@ -66,6 +68,7 @@ func GetJobStatus(c echo.Context) error {
 			"data": map[string]interface{}{
 				"status":      status,
 				"name":        taskrunner.JOB_NAME[jobType],
+				"error": 	   errorInfo,
 				"isComplete":  completed == total,
 				"completed":   completed,
 				"total":       total,
