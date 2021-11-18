@@ -110,7 +110,7 @@ func (c *AWSClient) CreateNewVolume(instanceId string, size int32, region string
 
 	// attach volume to instance
 	_, err = client.AttachVolume(context.TODO(), &ec2.AttachVolumeInput{
-		Device: aws.String("xvdh"),
+		Device:     aws.String("xvdh"),
 		InstanceId: aws.String(instanceId),
 		VolumeId:   volumeRes.VolumeId,
 	})

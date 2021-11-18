@@ -180,11 +180,11 @@ func ChangePreferences(c echo.Context) error {
 }
 
 func IsLoggedIn(c echo.Context) error {
-	if (!runner.IsRunning()) {
+	if !runner.IsRunning() {
 		sess, _ := session.Get("session", c)
 
 		client := awsclient.NewAWSClient(sess.Values["accessKey"].(string), sess.Values["secretKey"].(string), sess.Values["defaultRegion"].(string))
-		
+
 		go runner.Start(client)
 	}
 
