@@ -104,10 +104,10 @@ func GetRole() awsclient.AWSRole {
 	return r
 }
 
-func GetSecurityGroupId(streamSW awsclient.StreamSoftware) string {
+func GetSecurityGroupId(streamSW awsclient.StreamSoftware, region string) string {
 	var sg awsclient.AWSSecurityGroup
 
-	has, err := Engine.Desc("id").Where("stream_software = ?", streamSW).Get(&sg)
+	has, err := Engine.Desc("id").Where("stream_software = ? AND region = ?", streamSW, region).Get(&sg)
 
 	if err != nil || !has {
 		return ""

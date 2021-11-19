@@ -165,7 +165,7 @@ func (t *Task) createInstance(client awsclient.AWSClient, m models.Machine) {
 
 	models.Engine.ID(t.JobId).Get(&j)
 
-	securityGroupId := models.GetSecurityGroupId(m.StreamSoftware)
+	securityGroupId := models.GetSecurityGroupId(m.StreamSoftware, m.Region)
 	role := models.GetRole()
 
 	if m.InstanceType == string(types.InstanceTypeG3sXlarge) {
@@ -263,8 +263,8 @@ func (t *Task) createRole(client awsclient.AWSClient, m models.Machine) {
 }
 
 func (t *Task) createSecurityGroup(client awsclient.AWSClient, m models.Machine) {
-	securiyGroupId := models.GetSecurityGroupId(m.StreamSoftware)
-	securityGroups, err := client.GetSecurityGroups()
+	securiyGroupId := models.GetSecurityGroupId(m.StreamSoftware, m.Region)
+	securityGroups, err := client.GetSecurityGroups(m.Region)
 
 	if err == nil {
 		found := false
@@ -276,7 +276,7 @@ func (t *Task) createSecurityGroup(client awsclient.AWSClient, m models.Machine)
 		}
 
 		if !found {
-			group, err := client.CreateSecurityGroup(m.StreamSoftware)
+			group, err := client.CreateSecurityGroup(m.StreamSoftware, m.Region)
 
 			if err == nil {
 				models.Engine.InsertOne(&group)
@@ -349,7 +349,7 @@ func (t *Task) requestSpotInstance(client awsclient.AWSClient, m models.Machine)
 
 	var instanceType types.InstanceType
 
-	securityGroupId := models.GetSecurityGroupId(m.StreamSoftware)
+	securityGroupId := models.GetSecurityGroupId(m.StreamSoftware, m.Region)
 	role := models.GetRole()
 
 	if m.InstanceType == string(types.InstanceTypeG3sXlarge) {

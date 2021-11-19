@@ -12,6 +12,7 @@ import (
 type AWSSecurityGroup struct {
 	Id             int64
 	GroupId        string
+	Region 		   string
 	StreamSoftware string
 	Created        time.Time `xorm:"created"`
 }
@@ -20,10 +21,13 @@ func (sg *AWSSecurityGroup) TableName() string {
 	return "aws_securitygroups"
 }
 
-func (c *AWSClient) CreateSecurityGroup(streamSW StreamSoftware) (AWSSecurityGroup, error) {
+func (c *AWSClient) CreateSecurityGroup(streamSW StreamSoftware, region string) (AWSSecurityGroup, error) {
 	var group AWSSecurityGroup
 
-	client := ec2.NewFromConfig(c.Config)
+	config := c.Config
+	config.Region = region
+
+	client := ec2.NewFromConfig(config)
 
 	sg, err := client.CreateSecurityGroup(context.TODO(), &ec2.CreateSecurityGroupInput{
 		Description: aws.String("Cloud gaming security group"),
@@ -149,13 +153,18 @@ func (c *AWSClient) CreateSecurityGroup(streamSW StreamSoftware) (AWSSecurityGro
 	}
 
 	group.GroupId = *sg.GroupId
+	group.Region = region
 	group.StreamSoftware = streamSW.String()
 
 	return group, nil
 }
 
-func (c *AWSClient) GetSecurityGroups() ([]types.SecurityGroup, error) {
-	client := ec2.NewFromConfig(c.Config)
+func (c *AWSClient) GetSecurityGroups(region string) ([]types.SecurityGroup, error) {
+	config := c.Config
+	config.Region = region
+
+	client := ec2.NewFromConfig(config)
+
 	output, err := client.DescribeSecurityGroups(context.TODO(), &ec2.DescribeSecurityGroupsInput{
 		Filters: []types.Filter{
 			types.Filter{
