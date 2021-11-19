@@ -112,9 +112,10 @@ func (c *AWSClient) GetAvailability(regionList []string) map[string]map[string]b
 	availability["snapshots"] = make(map[string]bool)
 
 	for _, region := range regionList {
-		c.Config.Region = region
+		config := c.Config
+		config.Region = region
 
-		client := ec2.NewFromConfig(c.Config)
+		client := ec2.NewFromConfig(config)
 
 		instanceRes, err := client.DescribeInstances(context.TODO(), &ec2.DescribeInstancesInput{
 			Filters: []types.Filter{
@@ -236,11 +237,13 @@ func (c *AWSClient) GetWindowsAMIId(region string) (string, error) {
 func (c *AWSClient) GetGPUInstances(region string) []AWSGPUInstance {
 	instances := []AWSGPUInstance{}
 
-	c.Config.Region = region
+	config := c.Config
+	config.Region = region
 
 	instancePriceMap := map[string]float64{}
 
-	client := ec2.NewFromConfig(c.Config)
+	client := ec2.NewFromConfig(config)
+
 	timestamp := time.Now()
 	output, err := client.DescribeSpotPriceHistory(context.TODO(), &ec2.DescribeSpotPriceHistoryInput{
 		InstanceTypes: []types.InstanceType{
@@ -278,7 +281,10 @@ func (c *AWSClient) GetGPUInstances(region string) []AWSGPUInstance {
 }
 
 func (c *AWSClient) GetMachineData(imageId string, region string) (string, string, error) {
-	client := ec2.NewFromConfig(c.Config)
+	config := c.Config
+	config.Region = region
+
+	client := ec2.NewFromConfig(config)
 
 	res, err := client.DescribeInstances(context.TODO(), &ec2.DescribeInstancesInput{
 		Filters: []types.Filter{
@@ -334,6 +340,7 @@ func (c *AWSClient) GetPrices(region string) AWSPrices {
 	re := regexp.MustCompile(`"pricePerUnit":{"USD":"(.*?)"}`)
 
 	client := pricing.NewFromConfig(c.Config)
+
 	resGP3, err := client.GetProducts(context.TODO(), &pricing.GetProductsInput{
 		ServiceCode: aws.String("AmazonEC2"),
 		Filters: []pricingTypes.Filter{
