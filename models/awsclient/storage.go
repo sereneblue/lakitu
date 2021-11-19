@@ -43,6 +43,17 @@ func (c *AWSClient) CreateSnapshot(volumeId string, region string) (string, erro
 
 	res, err := client.CreateSnapshot(context.TODO(), &ec2.CreateSnapshotInput{
 		VolumeId: &volumeId,
+		TagSpecifications: []types.TagSpecification{
+			types.TagSpecification{
+				ResourceType: types.ResourceTypeSnapshot,
+				Tags: []types.Tag{
+					types.Tag{
+						Key:   aws.String(AWS_TAG_KEY),
+						Value: aws.String(""),
+					},
+				},
+			},
+		},
 	})
 
 	if err == nil {
