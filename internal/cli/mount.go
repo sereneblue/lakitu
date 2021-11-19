@@ -16,7 +16,7 @@ func createVolumeAndAttach(shell *Shell, snapshotId string) error {
 			)            
 		    $CurrentDevice = Get-EC2InstanceAttribute $InstanceId -Attribute blockDeviceMapping | Select-Object -ExpandProperty BlockDeviceMappings | Select-Object -last 1            
 		If ($CurrentDevice.DeviceName -eq '/dev/sda1') {            
-		    $NewDevice = 'xvdf'            
+		    $NewDevice = 'xvdh'            
 		    return $NewDevice            
 		}            
 		Else {            
