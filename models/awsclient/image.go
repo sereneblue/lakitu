@@ -21,6 +21,12 @@ func (c *AWSClient) CreateImage(instanceId string, region string) (string, error
 		InstanceId:  aws.String(instanceId),
 		Name:        aws.String("lakitu_image"),
 		Description: aws.String(""),
+		BlockDeviceMappings: []types.BlockDeviceMapping{
+			types.BlockDeviceMapping{
+				DeviceName: aws.String("xvdh"),
+				NoDevice: aws.String(""),
+			},
+		},
 		TagSpecifications: []types.TagSpecification{
 			types.TagSpecification{
 				ResourceType: types.ResourceTypeImage,
