@@ -20,7 +20,7 @@ import (
 )
 
 const (
-	AWS_TAG_KEY string = "test"
+	AWS_TAG_KEY string = "lakitu"
 )
 
 type AWSClient struct {
