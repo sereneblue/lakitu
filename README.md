@@ -25,6 +25,9 @@ Download the [server](https://github.com/sereneblue/lakitu/releases) from the re
 Follow the initial setup guide to add your AWS secret key and access key so that lakitu can work.
 
 After creating a machine, download the lakitu-cli binary to your cloud instance and run the bootstrap command like below to start setting up your cloud machine using the [Parsec Cloud Preperation Tool](https://github.com/parsec-cloud/Parsec-Cloud-Preparation-Tool).
+
+**NOTE: Windows Defender may detect the lakitu-cli binary as malware. This is a false positive.**
+
 ```
 	# Will install Parsec using the Parsec Cloud Preparation Tool
 	> lakitu-cli bootstrap
