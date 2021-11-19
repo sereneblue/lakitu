@@ -117,7 +117,7 @@ func GetSecurityGroupId(streamSW awsclient.StreamSoftware, region string) string
 }
 
 func IsFirstRun() bool {
-	has, _ := Engine.Table("settings").Exist()
+	has, _ := Engine.Table("settings").Where("key = 'awsSecretKey'").Exist()
 	if has {
 		return false
 	}
