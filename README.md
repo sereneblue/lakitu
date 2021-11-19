@@ -5,7 +5,7 @@
 
 ![lakitu UI](https://user-images.githubusercontent.com/14242625/141721197-b45a707a-f5e8-4a13-9ad9-9bde929cf40f.gif)
 
-Manage your cloud gaming EC2 instance wiith lakitu. 
+Manage your cloud gaming EC2 instance with lakitu. 
 
 <p align="center">
 	<img src="https://user-images.githubusercontent.com/14242625/141721197-b45a707a-f5e8-4a13-9ad9-9bde929cf40f.gif">
