@@ -307,7 +307,7 @@
 								</div>
 							{:else if state.activeTab === ACTIVE_TAB.ABOUT}
 								<div class="w-full text-lg">
-									<div>v0.1.0 by sereneblue</div>
+									<div>v0.1.1 by sereneblue</div>
 									<div class="mt-4">
 										<a
 											href="https://github.com/sereneblue/lakitu"
