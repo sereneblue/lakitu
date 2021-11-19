@@ -1,6 +1,6 @@
 # lakitu
 
-![lakitu version](https://img.shields.io/badge/version-0.1.3-lightgreen.svg)
+![lakitu version](https://img.shields.io/badge/version-0.1.4-lightgreen.svg)
 ![GPL v3 License](https://img.shields.io/badge/license-GPL%20v3-blue.svg)
 
 Manage your cloud gaming EC2 instance with lakitu. 

@@ -16,7 +16,7 @@
 			if (hasPending && page.path != '/loading') {
 				return { status: 302, redirect: '/loading' };
 			} 
-		} else if (!loggedIn && page.path != '/login' && page.path != '/setup') {
+		} else if (!loggedIn && page.path != '/login' && page.path != '/setup' && page.path != '/') {
 			return { status: 302, redirect: '/login' };
 		}
 
