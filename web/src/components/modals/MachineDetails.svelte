@@ -27,7 +27,13 @@
 		</div>
 		<div class="flex flex-col">
 			<div class="font-bold text-xs tracking-wide opacity-50">Snapshot ID</div>
-			<div class="text-lg -mt-1">{machine.snapshotId}</div>
+			<div class="text-lg -mt-1">
+				{#if machine.snapshotId}
+					{machine.snapshotId}
+				{:else}
+					Snapshot storage not created
+				{/if}
+			</div>
 		</div>
 		<div class="flex flex-col">
 			<div class="font-bold text-xs tracking-wide opacity-50">Password</div>
