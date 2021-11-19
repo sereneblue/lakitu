@@ -178,8 +178,11 @@ func (c *AWSClient) GetAvailability(regionList []string) map[string]map[string]b
 	return availability
 }
 
-func (c *AWSClient) GetWindowsAMIId() (string, error) {
-	client := ec2.NewFromConfig(c.Config)
+func (c *AWSClient) GetWindowsAMIId(region string) (string, error) {
+	config := c.Config
+	config.Region = region
+
+	client := ec2.NewFromConfig(config)
 
 	res, err := client.DescribeImages(context.TODO(), &ec2.DescribeImagesInput{
 		ExecutableUsers: []string{"all"},

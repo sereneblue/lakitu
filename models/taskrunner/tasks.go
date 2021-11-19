@@ -175,7 +175,7 @@ func (t *Task) createInstance(client awsclient.AWSClient, m models.Machine) {
 	}
 
 	// get ami id
-	amiId, err := client.GetWindowsAMIId()
+	amiId, err := client.GetWindowsAMIId(m.Region)
 	if err != nil {
 		// delete new machine if task fails
 		models.Engine.ID(m.Id).Cols("deleted").Update(models.Machine{
